@@ -12,7 +12,7 @@ export default function TabLayout() {
         tabBarStyle:{
             backgroundColor: "#A4C3B2"
         },
-        //tabBarShowLabel: false,
+        tabBarShowLabel: false,
         }}>
       <Tabs.Screen name='index'
         options={{
