@@ -5,15 +5,37 @@ import { LinearGradient } from "expo-linear-gradient"; // or `import LinearGradi
 import { Audio } from "expo-av"; // for audio feedback (click sound as you scroll)
 import * as Haptics from "expo-haptics"; // for haptic feedback
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View } from "react-native";
+import { Button, Pressable, TextInput, TouchableOpacity, View } from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { Link } from "expo-router";
+import { StyleSheet } from "react-native";
+import { Text } from 'react-native';  // ✅ Правильно
 
 
-export const App = () => {
+
+
+
+export default function App () {
     const [showPicker, setShowPicker] = useState(false);
     const [alarmString, setAlarmString] = useState<
         string | null
     >(null);
     const [date, setDate] = useState(new Date())
+
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+    const showDatePicker = () => {
+      setDatePickerVisibility(true);
+    };
+  
+    const hideDatePicker = () => {
+      setDatePickerVisibility(false);
+    };
+  
+    const handleConfirm = (date: Date) => {
+      console.warn("A date has been picked: ", date);
+      hideDatePicker();
+    };
 
     return (
         <SafeAreaView>
@@ -58,9 +80,66 @@ export const App = () => {
                 />
             </LinearGradient>
             <View>
+                <Button title="Выбрать дату" onPress={showDatePicker} />
+                <DateTimePickerModal
+                    isVisible={isDatePickerVisible}
+                    mode="date"
+                    onConfirm={handleConfirm}
+                    onCancel={hideDatePicker}/>
             </View>
+            <View >
+                <Link href="/choose_game" asChild>
+                    <Button title="Выбрать способ пробуждения" />
+                </Link>
+            </View>
+    <View style={styles.container}>
+      {/* Название будильника */}
+      <Text style={styles.label}>Название будильника</Text>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Введите название" 
+      />
+
+      {/* Выбор звука */}
+      <TouchableOpacity style={styles.option} >
+        <Text style={styles.optionText}>Звук будильника</Text>
+        <Text style={styles.optionSubtext}>Homecoming</Text>
+      </TouchableOpacity>
+
+      {/* Вибрация */}
+      <TouchableOpacity style={styles.option} >
+        <Text style={styles.optionText}>Вибрация</Text>
+        <Text style={styles.optionSubtext}>Basic Call</Text>
+      </TouchableOpacity>
+
+      {/* Кнопки */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.cancelButton}>
+          <Text style={styles.cancelText}>Отмена</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.saveButton}>
+          <Text style={styles.saveText}>Сохранить</Text>
+        </TouchableOpacity>
+      </View></View>
+
         </SafeAreaView>
         )
 
 };
-export default App
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  label: { fontSize: 16, color: "#888" },
+  input: { borderBottomWidth: 1, borderColor: "#ddd", fontSize: 18, padding: 8, marginBottom: 20 },
+  option: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 15, borderBottomWidth: 1, borderColor: "#ddd" },
+  optionText: { fontSize: 18 },
+  optionSubtext: { fontSize: 16, color: "#888" },
+  buttonContainer: { flexDirection: "row", justifyContent: "space-between", marginTop: 20 },
+  cancelButton: { flex: 1, padding: 15, borderRadius: 5, backgroundColor: "#ddd", alignItems: "center", marginRight: 10 },
+  saveButton: { flex: 1, padding: 15, borderRadius: 5, backgroundColor: "#007AFF", alignItems: "center" },
+  cancelText: { fontSize: 16, color: "#333" },
+  saveText: { fontSize: 16, color: "#fff" },
+  screen: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" },
+  header: { fontSize: 20, fontWeight: "bold", marginBottom: 20 },
+});
+

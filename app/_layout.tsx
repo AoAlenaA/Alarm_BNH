@@ -10,6 +10,10 @@ export default function RootLayout() {
         options={{ 
           presentation: "modal",
           headerShown: false }} />
+          <Stack.Screen name="choose_game" 
+        options={{ 
+          presentation: "modal",
+          headerShown: false }} />
     </Stack>
   );
 }
