@@ -23,9 +23,6 @@ export default function Index() {
       <ScrollView contentContainerStyle={styles.alarmscontainer}>
         <Text style={styles.text}>Пока  вы не добавили ни один будильник</Text>
       </ScrollView>
-
-
-
     </SafeAreaView>
   );
 }
