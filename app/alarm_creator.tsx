@@ -11,11 +11,10 @@ import { Link } from "expo-router";
 
 
 export default function App() {
-    const [showPicker, setShowPicker] = useState(false);
-    const [alarmString, setAlarmString] = useState<
-        string | null
-    >(null);
-    const [date, setDate] = useState(new Date())
+ 
+    const[time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 })
+    const [date, setDate] = useState(String)
+    const [selectedDate, setSelectedDate] = useState(String);
 
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
@@ -26,9 +25,20 @@ export default function App() {
     const hideDatePicker = () => {
         setDatePickerVisibility(false);
     };
+    const saveAlarm = () => {
+        console.warn("A time has been picked: ", time);
+        console.warn("A date has been picked: ", date);
+      };
+    
 
     const handleConfirm = (date: Date) => {
-        console.warn("A date has been picked: ", date);
+        const formattedDate1 = date.toLocaleDateString("ru-RU");
+        setDate(formattedDate1)
+        const formattedDate = date.toLocaleDateString("ru-RU", {
+            day: "numeric",
+            month: "long"
+        }); 
+        setSelectedDate(formattedDate);
         hideDatePicker();
     };
 
@@ -50,6 +60,9 @@ export default function App() {
                         LinearGradient={LinearGradient}
                         Haptics={Haptics}
                         MaskedView={MaskedView}
+                        onDurationChange={({ hours, minutes, seconds }) => {
+                            setTime({ hours, minutes, seconds }); // Сохраняем время в состоянии
+                        }}
                         styles={{
                             theme: "light",
                             backgroundColor: "transparent", // transparent fade-out
@@ -87,8 +100,8 @@ export default function App() {
                         mode="date"
                         onConfirm={handleConfirm}
                         onCancel={hideDatePicker} />
-                    <Text style={styles.optionText}>Дата</Text>
-                    <Text style={styles.optionSubtext}>8 марта</Text>
+                    <Text style={styles.text}>Дата</Text>
+                    <Text style={styles.optionSubtext}>{selectedDate}</Text>
                 </TouchableOpacity>
                 {/* Название будильника */}
                     <TextInput
@@ -99,7 +112,7 @@ export default function App() {
                 {/* Выбор игры */}
                 <Link href="/choose_game" asChild>
                     <TouchableOpacity style={styles.option} >
-                        <Text style={styles.optionText}>Способ пробуждения</Text>
+                        <Text style={styles.text}>Способ пробуждения</Text>
                         <Text style={styles.optionSubtext}>Игра</Text>
                     </TouchableOpacity>
                 </Link>
@@ -109,7 +122,7 @@ export default function App() {
                 {/* Выбор звука */}
                 <Link href='/alarm_music' asChild>
                     <TouchableOpacity style={styles.option} >
-                        <Text style={styles.optionText}>Звук будильника</Text>
+                        <Text style={styles.text}>Звук будильника</Text>
                         <Text style={styles.optionSubtext}>Homecoming</Text>
                     </TouchableOpacity>
                 </Link>
@@ -117,7 +130,7 @@ export default function App() {
                 {/* Вибрация */}
                 <Link href='/alarm_vibration' asChild>
                     <TouchableOpacity style={styles.option} >
-                        <Text style={styles.optionText}>Вибрация</Text>
+                        <Text style={styles.text}>Вибрация</Text>
                         <Text style={styles.optionSubtext}>Basic Call</Text>
                     </TouchableOpacity>
                 </Link>
@@ -127,7 +140,7 @@ export default function App() {
                     <TouchableOpacity style={styles.button}>
                         <Text style={styles.buttonTextCancel}>Отмена</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity style={styles.button} onPress={saveAlarm}>
                         <Text style={styles.buttonTextSave}>Сохранить</Text>
                     </TouchableOpacity>
                 </View>
@@ -167,29 +180,49 @@ const styles = StyleSheet.create({
         color: '#1A293C',
         fontFamily: "Inter",
         fontWeight: "bold",
-        fontSize: 14,
+        fontSize: 18,
     },
     buttonTextSave: {
         color: '#fff',
         fontFamily: "Inter",
         fontWeight: "bold",
-        fontSize: 14,
+        fontSize: 18,
     },
     containerOptions:
     {
         flex: 1,
         backgroundColor: '#CCE3DE',
-        padding:15
+        padding:15,
+        justifyContent: "space-between", 
+    },
+    option: {
+        flexDirection: "row",
+        justifyContent: "space-between", 
+        paddingVertical: 15, 
+        borderBottomWidth: 2,
+        borderColor: "#6B9080", 
+    },
+    input: { 
+        borderBottomWidth: 2, 
+        borderColor: "#6B9080", 
+        fontSize: 18,   
+        marginBottom: 20,
+        paddingVertical:10,
+        fontFamily: "Inter",
+        color: "#73827A",
+    },
+    text: {
+        color: '#1A293C',
+        fontFamily: "Inter",
+        fontSize: 18,
 
     },
-
-    label: { fontSize: 16, color: "#888" },
-    input: { borderBottomWidth: 1, borderColor: "#ddd", fontSize: 18,   marginBottom: 20 },
-    option: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 15, borderBottomWidth: 1, borderColor: "#ddd" },
-    optionText: { fontSize: 18 },
-    optionSubtext: { fontSize: 16, color: "#888" },
+    optionSubtext: { 
+        fontSize: 16, 
+        color: "#73827A",
+        fontFamily: "Inter",
+    },
     
-    screen: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" },
-    header: { fontSize: 20, fontWeight: "bold", marginBottom: 20 },
+
 });
 
