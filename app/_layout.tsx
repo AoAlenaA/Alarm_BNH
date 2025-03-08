@@ -10,7 +10,15 @@ export default function RootLayout() {
         options={{ 
           presentation: "modal",
           headerShown: false }} />
-          <Stack.Screen name="choose_game" 
+      <Stack.Screen name="choose_game" 
+        options={{ 
+          presentation: "modal",
+          headerShown: false }} />
+      <Stack.Screen name="alarm_music" 
+        options={{ 
+          presentation: "modal",
+          headerShown: false }} />
+      <Stack.Screen name="alarm_vibration" 
         options={{ 
           presentation: "modal",
           headerShown: false }} />
