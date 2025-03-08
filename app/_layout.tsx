@@ -6,6 +6,22 @@ export default function RootLayout() {
       <Stack.Screen name='(tabs)' 
         options={{
           headerShown: false}}/>
+      <Stack.Screen name="alarm_creator" 
+        options={{ 
+          presentation: "modal",
+          headerShown: false }} />
+      <Stack.Screen name="choose_game" 
+        options={{ 
+          presentation: "modal",
+          headerShown: false }} />
+      <Stack.Screen name="alarm_music" 
+        options={{ 
+          presentation: "modal",
+          headerShown: false }} />
+      <Stack.Screen name="alarm_vibration" 
+        options={{ 
+          presentation: "modal",
+          headerShown: false }} />
     </Stack>
   );
 }
