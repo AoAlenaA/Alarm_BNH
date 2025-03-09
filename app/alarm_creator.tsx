@@ -134,6 +134,7 @@ export default function App() {
                         <Text style={styles.optionSubtext}>Basic Call</Text>
                     </TouchableOpacity>
                 </Link>
+                </View>
 
                 {/* Кнопки */}
                 <View style={styles.buttonContainer}>
@@ -144,7 +145,7 @@ export default function App() {
                         <Text style={styles.buttonTextSave}>Сохранить</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            
 
         </SafeAreaView>
     )
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#CCE3DE',
         padding:15,
-        justifyContent: "space-between", 
+        justifyContent: "flex-start", 
     },
     option: {
         flexDirection: "row",
