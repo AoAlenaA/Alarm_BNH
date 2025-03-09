@@ -47,8 +47,8 @@ export default function App() {
         body: "Это тестовое уведомление из Expo!",
         sound: true,
       },
-      trigger:null
-      //trigger: { date: targetDate } as const, 
+      //trigger: null
+      trigger: { seconds: 60, type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, }, 
     });
   };
 
