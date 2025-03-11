@@ -8,6 +8,8 @@ import {
   Alert,
 } from 'react-native';
 import { supabase } from '../lib/supabase';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AuthScreen() {
   const [email, setEmail] = useState('');
@@ -46,7 +48,14 @@ export default function AuthScreen() {
           password: password,
         });
 
-        Alert.alert('Успех', 'Вход выполнен успешно');
+        // Сохраняем токен
+        await AsyncStorage.setItem('userToken', 'authenticated');
+        Alert.alert('Успех', 'Вход выполнен успешно', [
+          {
+            text: 'OK',
+            onPress: () => router.replace('/(tabs)')
+          }
+        ]);
         
       } else {
         const { data: existingUser } = await supabase
@@ -77,7 +86,14 @@ export default function AuthScreen() {
           password: password,
         });
 
-        Alert.alert('Успех', 'Регистрация прошла успешно');
+        // Сохраняем токен
+        await AsyncStorage.setItem('userToken', 'authenticated');
+        Alert.alert('Успех', 'Регистрация прошла успешно', [
+          {
+            text: 'OK',
+            onPress: () => router.replace('/(tabs)')
+          }
+        ]);
       }
     } catch (error: any) {
       console.error('Error details:', error);
