@@ -8,10 +8,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Link } from "expo-router";
+import{sendNotification, useNotificationListeners} from './notifications'
+
 
 
 export default function App() {
- 
+    useNotificationListeners();
     const[time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 })
     const [date, setDate] = useState(String)
     const [selectedDate, setSelectedDate] = useState(String);
@@ -25,10 +27,7 @@ export default function App() {
     const hideDatePicker = () => {
         setDatePickerVisibility(false);
     };
-    const saveAlarm = () => {
-        console.warn("A time has been picked: ", time);
-        console.warn("A date has been picked: ", date);
-      };
+
     
 
     const handleConfirm = (date: Date) => {
@@ -141,7 +140,7 @@ export default function App() {
                     <TouchableOpacity style={styles.button}>
                         <Text style={styles.buttonTextCancel}>Отмена</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={saveAlarm}>
+                    <TouchableOpacity style={styles.button} onPress={() => sendNotification(formatDateTime(date, time))}>
                         <Text style={styles.buttonTextSave}>Сохранить</Text>
                     </TouchableOpacity>
                 </View>
@@ -151,6 +150,13 @@ export default function App() {
     )
 
 };
+function formatDateTime(dateStr: string, timeObj: { hours: number; minutes: number; seconds: number }): Date {
+    const [day, month, year] = dateStr.split('.').map(Number);
+    const { hours, minutes, seconds } = timeObj;
+  
+    // Создаём объект Date
+    return new Date(year, month - 1, day, hours, minutes, seconds);
+  }
 
 const styles = StyleSheet.create({
     container: {

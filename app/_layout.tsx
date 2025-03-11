@@ -1,8 +1,10 @@
 import { Stack } from 'expo-router';
+import NotificationHandler from "./notifications"
 
 export default function RootLayout() {
   return (
     <Stack>
+      <NotificationHandler/>
       <Stack.Screen name='(tabs)' 
         options={{
           headerShown: false}}/>
@@ -19,6 +21,14 @@ export default function RootLayout() {
           presentation: "modal",
           headerShown: false }} />
       <Stack.Screen name="alarm_vibration" 
+        options={{ 
+          presentation: "modal",
+          headerShown: false }} />
+      <Stack.Screen name="notifications" 
+        options={{ 
+          presentation: "modal",
+          headerShown: false }} />
+      <Stack.Screen name="math_alarm" 
         options={{ 
           presentation: "modal",
           headerShown: false }} />

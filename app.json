@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ild4vid.Alarm_BNH"
     },
     "web": {
       "bundler": "metro",
@@ -23,6 +24,14 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "./assets/wake_up.wav"
+          ]
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -36,6 +45,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "6c47a5cf-75be-4406-9b10-d2ae7fdb4d23"
+      }
     }
   }
 }
