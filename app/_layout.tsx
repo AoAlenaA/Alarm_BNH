@@ -1,10 +1,8 @@
 import { Stack } from 'expo-router';
-import NotificationHandler from "./notifications"
 
 export default function RootLayout() {
   return (
     <Stack>
-      <NotificationHandler/>
       <Stack.Screen name='(tabs)' 
         options={{
           headerShown: false}}/>

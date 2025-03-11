@@ -1,33 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import { useRouter } from 'expo-router'; // Импорт useRouter
-
-export default function NotificationHandler() {
-  const router = useRouter();  // Получаем объект router
-
-  useEffect(() => {
-    //  Обработчик нажатия на уведомление
-    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
-      const { notification } = response; // Получаем объект уведомления
-      const { data } = notification.request.content; // Извлекаем данные
-
-      if (data && data.screen) {
-        // Выполняем навигацию на нужный экран
-        router.push('/math_alaram'); //  Навигация на указанный экран
-      }
-    });
-
-    return () => subscription.remove();  // Очищаем слушателя при размонтировании
-  }, []);
-
-  return null; // Этот компонент не отображает ничего визуально
-}
-
-
-
-
-
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -68,7 +41,7 @@ export async function sendNotification(triggerDate: Date) {
       importance: Notifications.AndroidImportance.MAX,
       sound: 'wake_up',
       bypassDnd: true,
-      
+      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC, // Ensure notification is always visible
     });
     await Notifications.scheduleNotificationAsync({
         content: {
@@ -76,6 +49,8 @@ export async function sendNotification(triggerDate: Date) {
             data: { screen: 'math_alarm' },
             vibrate: [0, 250, 250, 250],
             sticky: true,
+            sound: 'wake_up', // Ensure sound plays continuously
+            priority: Notifications.AndroidNotificationPriority.MAX, // Ensure high priority
         },
         trigger: {
             date: triggerDate,
@@ -105,5 +80,4 @@ export async function sendNotification(triggerDate: Date) {
       return;
     }
   }
-  
-  
+
