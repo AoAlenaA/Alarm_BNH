@@ -54,6 +54,10 @@ export default function App() {
         router.replace('/(tabs)'); // Navigate back to the main screen
     };
 
+    const handleCancel = () => {
+        router.replace('/(tabs)'); // Navigate back to the main screen
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             {/* Выбор времени */}
@@ -150,7 +154,7 @@ export default function App() {
 
             {/* Кнопки */}
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity style={styles.button} onPress={handleCancel}>
                     <Text style={styles.buttonTextCancel}>Отмена</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={handleSave}>
