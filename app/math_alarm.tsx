@@ -5,11 +5,34 @@ import { Audio } from 'expo-av';
 export default function MathAlarm() {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
 
-  
+  useEffect(() => {
+    (async () => {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/wake_up.wav'), // Ensure the path to the sound file is correct
+        { shouldPlay: true, isLooping: true }
+      );
+      setSound(sound);
+    })();
+
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, []);
+
+  const stopAlarm = async () => {
+    if (sound) {
+      await sound.stopAsync();
+      await sound.unloadAsync();
+      setSound(null);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Решите пример, чтобы выключить будильник</Text>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={stopAlarm}>
         <Text style={styles.buttonText}>Выключить будильник</Text>
       </TouchableOpacity>
     </View>
