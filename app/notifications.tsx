@@ -46,7 +46,8 @@ export async function sendNotification(triggerDate: Date) {
     await Notifications.setNotificationChannelAsync('new-emails', {
       name: 'E-mail notifications',
       importance: Notifications.AndroidImportance.MAX,
-      sound: 'wake_up',
+      sound: 'default', // Используй стандартный звук, чтобы убедиться, что он существует
+      vibrationPattern: [0, 250, 250, 250], // Добавь паттерн вибрации
       bypassDnd: true,
       lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC, // Ensure notification is always visible
     });
@@ -87,4 +88,3 @@ async function registerForPushNotificationsAsync() {
       return;
     }
 }
-

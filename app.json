@@ -11,11 +11,21 @@
     "ios": {
       "supportsTablet": true
     },
+    "ios": {
+      "infoPlist": {
+        "NSMotionUsageDescription": "Приложению требуется доступ к данным шагомера для отслеживания ваших шагов."
+      }
+    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "android": {
+      "permissions": [
+        "android.permission.ACTIVITY_RECOGNITION"
+      ]
+    },
       "package": "com.ild4vid.Alarm_BNH"
     },
     "web": {
