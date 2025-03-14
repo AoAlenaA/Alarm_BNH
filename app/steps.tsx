@@ -8,10 +8,12 @@ const StepsScreen = () => {
   const { stepCount } = useLocalSearchParams();
   const [stepsLeft, setStepsLeft] = useState<number>(stepCount ? parseInt(stepCount.toString(), 10) : 0);
   const [timeLeft, setTimeLeft] = useState<number>(60);
-  const [currentSteps, setCurrentSteps] = useState<number>(0);
+  const [currentSteps, setCurrentSteps] = useState<number>(0); // Шаги с начала таймера
   const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isPedometerAvailable, setIsPedometerAvailable] = useState<boolean>(false);
   const router = useRouter();
 
+  // Загрузка звука
   useEffect(() => {
     const loadSound = async () => {
       try {
@@ -33,6 +35,7 @@ const StepsScreen = () => {
     };
   }, []);
 
+  // Воспроизведение звука
   const playErrorSound = async () => {
     if (sound) {
       try {
@@ -43,6 +46,21 @@ const StepsScreen = () => {
     }
   };
 
+  // Проверка доступности шагомера
+  useEffect(() => {
+    const checkPedometerAvailability = async () => {
+      const isAvailable = await Pedometer.isAvailableAsync();
+      setIsPedometerAvailable(isAvailable);
+
+      if (!isAvailable) {
+        Alert.alert('Ошибка', 'Шагомер недоступен на вашем устройстве.');
+      }
+    };
+
+    checkPedometerAvailability();
+  }, []);
+
+  // Таймер
   useEffect(() => {
     if (timeLeft > 0 && currentSteps < stepsLeft) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -54,39 +72,28 @@ const StepsScreen = () => {
     }
   }, [timeLeft, currentSteps]);
 
+  // Отслеживание шагов с начала таймера
   useEffect(() => {
     let subscription: Pedometer.Subscription | null = null;
 
-    const subscribeToPedometer = async () => {
-      const isAvailable = await Pedometer.isAvailableAsync();
-      if (!isAvailable) {
-        Alert.alert('Ошибка', 'Шагомер недоступен на вашем устройстве.');
-        return;
-      }
+    if (isPedometerAvailable) {
+      // Сбрасываем шаги при старте таймера
+      setCurrentSteps(0);
 
-      const end = new Date();
-      const start = new Date();
-      start.setHours(0, 0, 0, 0);
-
-      const pastStepCount = await Pedometer.getStepCountAsync(start, end);
-      if (pastStepCount.steps !== null) {
-        setCurrentSteps(pastStepCount.steps);
-      }
-
+      // Подписываемся на обновления шагов
       subscription = Pedometer.watchStepCount((result) => {
-        setCurrentSteps((prevSteps) => prevSteps + result.steps);
+        setCurrentSteps((prevSteps) => prevSteps + 1); // Увеличиваем счетчик шагов на 1
       });
-    };
-
-    subscribeToPedometer();
+    }
 
     return () => {
       if (subscription) {
         subscription.remove();
       }
     };
-  }, []);
+  }, [isPedometerAvailable]);
 
+  // Проверка выполнения шагов
   useEffect(() => {
     if (currentSteps >= stepsLeft && timeLeft > 0) {
       Alert.alert('Поздравляем!', 'Вы прошли все шаги!', [
