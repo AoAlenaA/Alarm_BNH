@@ -5,18 +5,19 @@ import { LinearGradient } from "expo-linear-gradient"; // or `import LinearGradi
 import { Audio } from "expo-av"; // for audio feedback (click sound as you scroll)
 import * as Haptics from "expo-haptics"; // for haptic feedback
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button, Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
+import { Button, Text, TextInput, TouchableOpacity, View, StyleSheet, Alert } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Link } from "expo-router";
-
+import { useRouter } from 'expo-router'; // Import useRouter for navigation
+import { sendNotification, useNotificationListeners } from './notifications'
 
 export default function App() {
- 
-    const[time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 })
+    useNotificationListeners();
+    const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 })
     const [date, setDate] = useState(String)
     const [selectedDate, setSelectedDate] = useState(String);
-
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const router = useRouter(); // Initialize router for navigation
 
     const showDatePicker = () => {
         setDatePickerVisibility(true);
@@ -25,11 +26,6 @@ export default function App() {
     const hideDatePicker = () => {
         setDatePickerVisibility(false);
     };
-    const saveAlarm = () => {
-        console.warn("A time has been picked: ", time);
-        console.warn("A date has been picked: ", date);
-      };
-    
 
     const handleConfirm = (date: Date) => {
         const formattedDate1 = date.toLocaleDateString("ru-RU");
@@ -37,9 +33,29 @@ export default function App() {
         const formattedDate = date.toLocaleDateString("ru-RU", {
             day: "numeric",
             month: "long"
-        }); 
+        });
         setSelectedDate(formattedDate);
         hideDatePicker();
+    };
+
+    const handleSave = () => {
+        if (!date) {
+            Alert.alert("Ошибка", "Пожалуйста, выберите дату.");
+            return;
+        }
+
+        const selectedDateTime = formatDateTime(date, time);
+        if (selectedDateTime < new Date()) {
+            Alert.alert("Ошибка", "Выбранная дата и время не могут быть в прошлом.");
+            return;
+        }
+
+        sendNotification(selectedDateTime);
+        router.replace('/(tabs)'); // Navigate back to the main screen
+    };
+
+    const handleCancel = () => {
+        router.replace('/(tabs)'); // Navigate back to the main screen
     };
 
     return (
@@ -104,10 +120,10 @@ export default function App() {
                     <Text style={styles.optionSubtext}>{selectedDate}</Text>
                 </TouchableOpacity>
                 {/* Название будильника */}
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Название будильника"
-                    />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Название будильника"
+                />
 
                 {/* Выбор игры */}
                 <Link href="/choose_game" asChild>
@@ -117,7 +133,7 @@ export default function App() {
                     </TouchableOpacity>
                 </Link>
 
-                
+
 
                 {/* Выбор звука */}
                 <Link href='/alarm_music' asChild>
@@ -134,23 +150,30 @@ export default function App() {
                         <Text style={styles.optionSubtext}>Basic Call</Text>
                     </TouchableOpacity>
                 </Link>
-                </View>
+            </View>
 
-                {/* Кнопки */}
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonTextCancel}>Отмена</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={saveAlarm}>
-                        <Text style={styles.buttonTextSave}>Сохранить</Text>
-                    </TouchableOpacity>
-                </View>
-            
+            {/* Кнопки */}
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.button} onPress={handleCancel}>
+                    <Text style={styles.buttonTextCancel}>Отмена</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={handleSave}>
+                    <Text style={styles.buttonTextSave}>Сохранить</Text>
+                </TouchableOpacity>
+            </View>
+
 
         </SafeAreaView>
     )
 
 };
+function formatDateTime(dateStr: string, timeObj: { hours: number; minutes: number; seconds: number }): Date {
+    const [day, month, year] = dateStr.split('.').map(Number);
+    const { hours, minutes, seconds } = timeObj;
+
+    // Создаём объект Date
+    return new Date(year, month - 1, day, hours, minutes, seconds);
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -158,10 +181,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#CCE3DE',
     },
 
-    buttonContainer: { 
-        flex:1,
-        flexDirection: "row", 
-        justifyContent: "space-between", 
+    buttonContainer: {
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "space-between",
         position: "absolute",
         bottom: 0,
         left: 0,
@@ -169,13 +192,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#CCE3DE',
     },
     button: {
-        margin:20,
-        flex: 1, 
-        padding: 15, 
-        borderRadius: 20, 
-        backgroundColor: "#6B9080", 
-        alignItems: "center", 
-        marginRight: 10 
+        margin: 20,
+        flex: 1,
+        padding: 15,
+        borderRadius: 20,
+        backgroundColor: "#6B9080",
+        alignItems: "center",
+        marginRight: 10
     },
     buttonTextCancel: {
         color: '#1A293C',
@@ -193,22 +216,22 @@ const styles = StyleSheet.create({
     {
         flex: 1,
         backgroundColor: '#CCE3DE',
-        padding:15,
-        justifyContent: "flex-start", 
+        padding: 15,
+        justifyContent: "flex-start",
     },
     option: {
         flexDirection: "row",
-        justifyContent: "space-between", 
-        paddingVertical: 15, 
+        justifyContent: "space-between",
+        paddingVertical: 15,
         borderBottomWidth: 2,
-        borderColor: "#6B9080", 
+        borderColor: "#6B9080",
     },
-    input: { 
-        borderBottomWidth: 2, 
-        borderColor: "#6B9080", 
-        fontSize: 18,   
+    input: {
+        borderBottomWidth: 2,
+        borderColor: "#6B9080",
+        fontSize: 18,
         marginBottom: 20,
-        paddingVertical:10,
+        paddingVertical: 10,
         fontFamily: "Inter",
         color: "#73827A",
     },
@@ -218,12 +241,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
 
     },
-    optionSubtext: { 
-        fontSize: 16, 
+    optionSubtext: {
+        fontSize: 16,
         color: "#73827A",
         fontFamily: "Inter",
     },
-    
+
 
 });
 

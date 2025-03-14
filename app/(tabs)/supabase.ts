@@ -1,17 +1,12 @@
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createClient } from '@supabase/supabase-js';
 
-import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = 'https://rbeouckkudskjqdkpqci.supabase.co'
-const SUPABASE_KEY = 'SUPABASE_CLIENT_API_KEY'
 
-const supabaseKey = process.env.SUPABASE_KEY;
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJiZW91Y2trdWRza2pxZGtwcWNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE0NDczNzYsImV4cCI6MjA1NzAyMzM3Nn0.xXSKUtZYvA7eHPqdg6YkP9yKCosguQBThRiD7TJmJtQ';
 
-if (!supabaseKey) {
-  throw new Error('SUPABASE_KEY environment variable not set!'); 
-}
-
-export const supabase = createClient(supabaseUrl, supabaseKey, {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: AsyncStorage,
     autoRefreshToken: true,
@@ -19,4 +14,3 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
     detectSessionInUrl: false,
   },
 });
-

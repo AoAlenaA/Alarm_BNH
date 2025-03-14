@@ -4,7 +4,7 @@ import { Text, View,  StyleSheet } from 'react-native';
 export default function Index() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Можно выбрать вибрацию будильника тут</Text>
+      <Text style={styles.text}>Решите пример, чтобы выключить буду=ильник</Text>
     </View>
   );
 }
