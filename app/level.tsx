@@ -1,0 +1,226 @@
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons'; // Импорт иконок
+
+const LevelScreen = () => {
+  const [difficulty, setDifficulty] = useState<string | null>(null);
+  const [exampleCount, setExampleCount] = useState<string>('');
+  const router = useRouter();
+
+  const handleDifficultyPress = (level: string) => {
+    setDifficulty(level);
+  };
+
+  const handleCancelPress = () => {
+    router.back();
+  };
+
+  const handleSavePress = () => {
+    if (difficulty !== null && exampleCount !== '') {
+      const count = parseInt(exampleCount, 10);
+      if (count > 0) {
+        router.push({
+          pathname: '/math',
+          params: { level: difficulty, totalExamples: exampleCount },
+        });
+      } else {
+        Alert.alert('Ошибка', 'Количество примеров должно быть больше 0.');
+      }
+    } else {
+      Alert.alert('Ошибка', 'Пожалуйста, выберите уровень сложности и введите количество примеров.');
+    }
+  };
+
+  const showHint = (level: string) => {
+    let message = '';
+    switch (level) {
+      case 'Легкий':
+        message = 'Пример задания: 15+7';
+        break;
+      case 'Средний':
+        message = 'Пример задания: 34+17+90';
+        break;
+      case 'Сложный':
+        message = 'Пример задания: 67*3';
+        break;
+      default:
+        message = 'Нет подсказки для этого уровня';
+    }
+
+    Alert.alert(`Уровень сложности: ${level}`, message);
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Выберите уровень сложности</Text>
+      </View>
+
+      <View style={styles.difficultyButtonsContainer}>
+        <TouchableOpacity
+          style={[
+            styles.difficultyButton,
+            difficulty === 'Легкий' && styles.difficultyButtonSelected,
+          ]}
+          onPress={() => handleDifficultyPress('Легкий')}
+        >
+          <Text style={[
+            styles.difficultyButtonText,
+            difficulty === 'Легкий' && styles.difficultyButtonTextSelected,
+          ]}>
+            Легкий
+          </Text>
+          <TouchableOpacity onPress={() => showHint('Легкий')} style={styles.hintButton}>
+            <Ionicons name="help-circle-outline" size={24} color="#1A293C" />
+          </TouchableOpacity>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.difficultyButton,
+            difficulty === 'Средний' && styles.difficultyButtonSelected,
+          ]}
+          onPress={() => handleDifficultyPress('Средний')}
+        >
+          <Text style={[
+            styles.difficultyButtonText,
+            difficulty === 'Средний' && styles.difficultyButtonTextSelected,
+          ]}>
+            Средний
+          </Text>
+          <TouchableOpacity onPress={() => showHint('Средний')} style={styles.hintButton}>
+            <Ionicons name="help-circle-outline" size={24} color="#1A293C" />
+          </TouchableOpacity>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.difficultyButton,
+            difficulty === 'Сложный' && styles.difficultyButtonSelected,
+          ]}
+          onPress={() => handleDifficultyPress('Сложный')}
+        >
+          <Text style={[
+            styles.difficultyButtonText,
+            difficulty === 'Сложный' && styles.difficultyButtonTextSelected,
+          ]}>
+            Сложный
+          </Text>
+          <TouchableOpacity onPress={() => showHint('Сложный')} style={styles.hintButton}>
+            <Ionicons name="help-circle-outline" size={24} color="#1A293C" />
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Количество примеров"
+          keyboardType="numeric"
+          value={exampleCount}
+          onChangeText={setExampleCount}
+        />
+      </View>
+
+      <View style={styles.bottomButtonsContainer}>
+        <TouchableOpacity style={[styles.bottomButton, styles.cancelButton]} onPress={handleCancelPress}>
+          <Text style={styles.bottomButtonText}>Отмена</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.bottomButton, styles.saveButton]} onPress={handleSavePress}>
+          <Text style={styles.bottomButtonText}>Далее</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#CCE3DE',
+  },
+  header: {
+    backgroundColor: '#6B9080',
+    padding: 20,
+    paddingTop: 50, // Отступ для iPhone
+    alignItems: 'center',
+  },
+  headerText: {
+    fontSize: 24,
+    color: '#fff',
+    fontFamily: 'Inter',
+    fontWeight: 'bold',
+  },
+  difficultyButtonsContainer: {
+    width: '100%',
+    padding: 20,
+  },
+  difficultyButton: {
+    backgroundColor: '#6B9080',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  difficultyButtonSelected: {
+    backgroundColor: '#A4C3B2', // Цвет выделенной кнопки
+  },
+  difficultyButtonText: {
+    fontSize: 18,
+    color: '#fff',
+    fontFamily: 'Inter',
+    fontWeight: 'bold',
+  },
+  difficultyButtonTextSelected: {
+    color: '#1A293C', // Темный цвет для выбранной кнопки
+  },
+  hintButton: {
+    paddingLeft: 10,
+  },
+  inputContainer: {
+    width: '100%',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  input: {
+    width: '100%',
+    padding: 15,
+    borderWidth: 2,
+    borderColor: '#6B9080',
+    borderRadius: 10,
+    fontSize: 18,
+    fontFamily: 'Inter',
+    color: '#1A293C',
+  },
+  bottomButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    padding: 15,
+    backgroundColor: '#6B9080',
+    borderRadius: 10,
+  },
+  bottomButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    minWidth: 120,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#A4C3B2',
+  },
+  saveButton: {
+    backgroundColor: '#A4C3B2',
+  },
+  bottomButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    fontFamily: 'Inter',
+    color: '#fff',
+  },
+});
+
+export default LevelScreen;
