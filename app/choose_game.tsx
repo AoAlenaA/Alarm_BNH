@@ -27,6 +27,8 @@ const App = () => {
       });
     } else if (selectedIndex === "Прохождение шагов") {
       router.push('../stepSelection');
+    } else if (selectedIndex === "Сканирование QR-кода") {
+      router.push('/game');
     } else {
       if (selectedIndex === null) {
         alert('Пожалуйста, выберите способ пробуждения');
@@ -34,6 +36,10 @@ const App = () => {
         if (selectedIndex === "Игра") {
           router.push({
             pathname: '/game',
+          });
+        } else if (selectedIndex === "Запись текста") {
+          router.push({
+            pathname: '/TextCount',
           });
         } else {
           router.push('/alarm_creator');
