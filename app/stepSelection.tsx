@@ -10,7 +10,7 @@ const StepsSelectionScreen = () => {
     const count = parseInt(stepCount, 10);
     if (count > 0 && count <= 10000) {
       router.push({
-        pathname: './steps.tsx',
+        pathname: '/steps',
         params: { stepCount: stepCount },
       });
     } else {

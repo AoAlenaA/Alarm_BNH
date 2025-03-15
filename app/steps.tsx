@@ -115,7 +115,6 @@ const StepsScreen = () => {
     </View>
   );
 };
-export default StepsScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -155,3 +154,4 @@ const styles = StyleSheet.create({
   },
 });
 
+export default StepsScreen;
