@@ -22,9 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "android": {
-      "permissions": [
-        "android.permission.ACTIVITY_RECOGNITION"
-      ]
+      "permissions": ["ACTIVITY_RECOGNITION"]
     },
       "package": "com.ild4vid.Alarm_BNH"
     },
