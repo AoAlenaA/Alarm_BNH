@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, TextInput, Alert, StatusBar } from 'react-native';
+import { Audio } from 'expo-av'; // Импорт для работы со звуком
+
+
+
 
 const { width, height } = Dimensions.get('window');
+
 
 interface BallProps {
   top: number;
@@ -11,12 +16,14 @@ interface BallProps {
   onPress: () => void;
 }
 
+
 const Ball: React.FC<BallProps> = ({ top, left, size, color, onPress }) => (
   <TouchableOpacity
     style={[styles.ball, { top, left, width: size, height: size, backgroundColor: color }]}
     onPress={onPress}
   />
 );
+
 
 const App = () => {
   const [balls, setBalls] = useState<{ id: string; top: number; left: number; size: number; color: string; speed: number }[]>([]);
@@ -25,6 +32,47 @@ const App = () => {
   const [inputScore, setInputScore] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
   const [missedBalls, setMissedBalls] = useState(0); // Счетчик пропущенных шаров
+  const [sound, setSound] = useState<Audio.Sound | null>(null); // Для воспроизведения звука
+
+
+
+
+// Загрузка звукового файла
+  useEffect(() => {
+    const loadSound = async () => {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          require('../assets/error_sound.mp3') // Укажите путь к вашему звуковому файлу
+        );
+        setSound(sound);
+      } catch (error) {
+        console.error('Ошибка загрузки звука:', error);
+      }
+    };
+
+
+    loadSound();
+
+
+    return () => {
+      if (sound) {
+        sound.unloadAsync(); // Выгрузка звука при размонтировании компонента
+      }
+    };
+  }, []);
+
+
+  // Воспроизведение звука
+  const playErrorSound = async () => {
+    if (sound) {
+      try {
+        await sound.replayAsync(); // Воспроизведение звука
+      } catch (error) {
+        console.error('Ошибка воспроизведения звука:', error);
+      }
+    }
+  };
+
 
   useEffect(() => {
     if (gameStarted && targetScore !== null) {
@@ -40,9 +88,11 @@ const App = () => {
         setBalls((prevBalls) => [...prevBalls, newBall]);
       }, 1000);
 
+
       return () => clearInterval(interval);
     }
   }, [gameStarted, targetScore]);
+
 
   useEffect(() => {
     if (gameStarted && targetScore !== null) {
@@ -63,14 +113,17 @@ const App = () => {
         );
       }, 16);
 
+
       return () => clearInterval(moveBalls);
     }
   }, [gameStarted, targetScore]);
+
 
   const handleBallPress = (id: string) => {
     setBalls((prevBalls) => prevBalls.filter((ball) => ball.id !== id));
     setScore((prevScore) => prevScore + 1);
   };
+
 
   const handleStartGame = () => {
     const parsedScore = parseInt(inputScore, 10);
@@ -84,6 +137,7 @@ const App = () => {
     }
   };
 
+
   useEffect(() => {
     if (gameStarted && targetScore !== null && score >= targetScore) {
       Alert.alert('Победа!', 'Вы набрали нужное количество очков!');
@@ -94,15 +148,19 @@ const App = () => {
     }
   }, [score, targetScore, gameStarted]);
 
+
   useEffect(() => {
     if (missedBalls >= 10) {
       // Перезапуск игры без показа правил
+      playErrorSound();
       setScore(0);
       setMissedBalls(0);
       setBalls([]);
     }
   }, [missedBalls]);
-return (
+
+
+  return (
     <View style={styles.container}>
       <StatusBar hidden /> {/* Скрываем статус-бар (надпись "game" вверху экрана) */}
       {!gameStarted ? (
@@ -143,6 +201,7 @@ return (
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -204,5 +263,6 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
 });
+
 
 export default App;
