@@ -23,8 +23,10 @@ const App = () => {
     if (selectedIndex === "Решение примеров") {
       router.push({
         pathname: '/level',
-        params: { selectedIndex: selectedIndex }, // Передаем строку напрямую
+        params: { selectedIndex: selectedIndex },
       });
+    } else if (selectedIndex === "Прохождение шагов") {
+      router.push('/stepSelection');
     } else {
       if (selectedIndex === null) {
         alert('Пожалуйста, выберите способ пробуждения');

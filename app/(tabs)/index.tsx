@@ -1,27 +1,37 @@
-
 import { Link } from 'expo-router';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {Ionicons} from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import { useState, useEffect } from 'react';
 
 export default function Index() {
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString());
+    }, 1000);
+
+    return () => clearInterval(interval); // Очистка интервала при размонтировании компонента
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       {/*Заголовок*/}
       <View style={styles.header}>
-        <Text style={styles.headerText}>Будильники отключены</Text>
+        <Text style={styles.headerText}>{currentTime}</Text>
       </View>
       {/*кнопка*/}
       <View style={styles.buttonContainer}>
         <Link href="/alarm_creator" asChild>
           <Pressable> 
-            <Ionicons name="add" size={30} color="#1A293C"/>
+            <Ionicons name="add-circle-outline" size={50} color="#1A293C"/>
           </Pressable>
         </Link>
       </View>
-    {/*Место для будильников*/}
+      {/*Место для будильников*/}
       <ScrollView contentContainerStyle={styles.alarmscontainer}>
-        <Text style={styles.text}>Пока  вы не добавили ни один будильник</Text>
+        <Text style={styles.text}>Пока вы не добавили ни один будильник</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -31,6 +41,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#CCE3DE',
+
   },
   alarmscontainer: {
     flex:1,
@@ -50,15 +61,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 52,
     color: '#1A293C'
   },
   buttonContainer: {
     width: '100%',
     backgroundColor: '#CCE3DE',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingRight:20
+    paddingBottom:20
   },
 });
