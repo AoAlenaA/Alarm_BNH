@@ -45,8 +45,10 @@ export function useNotificationListeners() {
 export async function sendNotification(triggerDate: Date) {
     await Notifications.setNotificationChannelAsync('new_emails', {
             name: 'E-mail notifications',
-            importance: Notifications.AndroidImportance.HIGH,
-            sound: 'wake_up.wav', // <- for Android 8.0+, see channelId property below
+            importance: Notifications.AndroidImportance.MAX,
+            sound: 'wake_up.wav', 
+            vibrationPattern: [0, 250, 250, 250], // Опционально: добавьте вибрацию
+            enableVibrate: true,// <- for Android 8.0+, see channelId property below
           });
           
           // Eg. schedule the notification
@@ -55,8 +57,9 @@ export async function sendNotification(triggerDate: Date) {
               title: "You've got mail! 📬",
               body: 'Open the notification to read them all',
               sound: 'wake_up.wav', // <- for Android below 8.0
-              data: { screen: 'math_alarm' }
+              data: { screen: 'math_alarm' },
             },
+            
             trigger: {
               date: triggerDate,
               type: Notifications.SchedulableTriggerInputTypes.DATE,

@@ -34,9 +34,9 @@
           "color": "#ffffff",
           "defaultChannel": "default",
           "sounds": [
-            "./assets/alarm_sound.wav",
-            "./assets/wake_up.wav",
-            "./assets/error_sound.mp3"
+            "./assets/sounds/wake_up.wav",
+            "./assets/sounds/error_sound.mp3",
+            "./assets/sounds/alarm_sound.wav"
             
           ]
         }
