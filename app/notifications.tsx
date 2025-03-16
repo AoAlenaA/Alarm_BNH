@@ -43,30 +43,32 @@ export function useNotificationListeners() {
 }
 
 export async function sendNotification(triggerDate: Date) {
-    await Notifications.setNotificationChannelAsync('new-emails', {
-      name: 'E-mail notifications',
-      importance: Notifications.AndroidImportance.MAX,
-      sound: 'default', // Используй стандартный звук, чтобы убедиться, что он существует
-      vibrationPattern: [0, 250, 250, 250], // Добавь паттерн вибрации
-      bypassDnd: true,
-      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC, // Ensure notification is always visible
-    });
-    await Notifications.scheduleNotificationAsync({
-        content: {
-            title: "Пора вставать!!!",
-            data: { screen: 'math_alarm' }, // Add screen data for navigation
-            sticky: true,
-            autoDismiss: false, // Ensure notification remains on the screen
-        },
-        trigger: {
-            date: triggerDate,
-            type: Notifications.SchedulableTriggerInputTypes.DATE,
-            channelId: 'new-emails',
-        },
-    });
+    await Notifications.setNotificationChannelAsync('new_emails', {
+            name: 'E-mail notifications',
+            importance: Notifications.AndroidImportance.MAX,
+            sound: 'wake_up.wav', 
+            vibrationPattern: [0, 250, 250, 250], // Опционально: добавьте вибрацию
+            enableVibrate: true,// <- for Android 8.0+, see channelId property below
+          });
+          
+          // Eg. schedule the notification
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: "You've got mail! 📬",
+              body: 'Open the notification to read them all',
+              sound: 'wake_up.wav', // <- for Android below 8.0
+              data: { screen: 'math_alarm' },
+            },
+            
+            trigger: {
+              date: triggerDate,
+              type: Notifications.SchedulableTriggerInputTypes.DATE,
+              channelId: 'new_emails', // <- for Android 8.0+, see definition above
+            },
+          });
+    
+        console.log(`Будильник установлен на ${triggerDate}`);
 
-    // Trigger haptic feedback
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 }
 
 async function registerForPushNotificationsAsync() {

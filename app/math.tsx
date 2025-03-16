@@ -20,7 +20,7 @@ const MathGameScreen = () => {
     const loadSound = async () => {
       try {
         const { sound } = await Audio.Sound.createAsync(
-          require('../assets/error_sound.mp3') // Укажите путь к вашему звуковому файлу
+          require('../assets/sounds/error_sound.mp3') // Укажите путь к вашему звуковому файлу
         );
         setSound(sound);
       } catch (error) {

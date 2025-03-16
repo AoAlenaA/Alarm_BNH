@@ -78,7 +78,7 @@ const TextInputScreen = () => {
   }, [timer]);
 
   const playErrorSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(require('../assets/error_sound.mp3'));
+    const { sound } = await Audio.Sound.createAsync(require('../assets/sounds/error_sound.mp3'));
     await sound.playAsync();
   };
 

@@ -9,9 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
-    },
-    "ios": {
+      "supportsTablet": true,
       "infoPlist": {
         "NSMotionUsageDescription": "Приложению требуется доступ к данным шагомера для отслеживания ваших шагов."
       }
@@ -21,9 +19,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "android": {
-      "permissions": ["ACTIVITY_RECOGNITION"]
-    },
+      "permissions": ["ACTIVITY_RECOGNITION"],
       "package": "com.ild4vid.Alarm_BNH"
     },
     "web": {
@@ -35,8 +31,13 @@
       [
         "expo-notifications",
         {
+          "color": "#ffffff",
+          "defaultChannel": "default",
           "sounds": [
-            "./assets/wake_up.wav"
+            "./assets/sounds/wake_up.wav",
+            "./assets/sounds/error_sound.mp3",
+            "./assets/sounds/alarm_sound.wav"
+            
           ]
         }
       ],
