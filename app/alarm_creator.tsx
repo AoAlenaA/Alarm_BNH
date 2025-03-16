@@ -7,7 +7,7 @@ import * as Haptics from "expo-haptics"; // for haptic feedback
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { Link } from "expo-router";
+import { Link, useLocalSearchParams } from "expo-router";
 
 
 export default function App() {
@@ -29,7 +29,7 @@ export default function App() {
         console.warn("A time has been picked: ", time);
         console.warn("A date has been picked: ", date);
       };
-    
+      const { melody } = useLocalSearchParams();
 
     const handleConfirm = (date: Date) => {
         const formattedDate1 = date.toLocaleDateString("ru-RU");
@@ -119,13 +119,13 @@ export default function App() {
 
                 
 
-                {/* Выбор звука */}
-                <Link href='/alarm_music' asChild>
-                    <TouchableOpacity style={styles.option} >
-                        <Text style={styles.text}>Звук будильника</Text>
-                        <Text style={styles.optionSubtext}>Homecoming</Text>
-                    </TouchableOpacity>
-                </Link>
+               {/* Выбор звука */}
+            <Link href='/CategorySelection' asChild>
+                <TouchableOpacity style={styles.option}>
+                    <Text style={styles.text}>Звук будильника</Text>
+                    <Text style={styles.optionSubtext}>{melody || "Homecoming"}</Text>
+                </TouchableOpacity>
+            </Link>
 
                 {/* Вибрация */}
                 <Link href='/alarm_vibration' asChild>

@@ -13,6 +13,7 @@ const MathGameScreen = () => {
   const router = useRouter();
   const [sound, setSound] = useState<Audio.Sound | null>(null); // Для воспроизведения звука
 
+  
   // Загрузка звукового файла
   useEffect(() => {
     const loadSound = async () => {

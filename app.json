@@ -1,5 +1,4 @@
 {
- 
   "expo": {
     "name": "Alarm_BNH",
     "slug": "Alarm_BNH",
@@ -10,17 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
-        },
-    "ios": {
       "infoPlist": {
         "NSMotionUsageDescription": "Приложению требуется доступ к данным шагомера для отслеживания ваших шагов."
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
       }
     },
     "android": {
@@ -43,7 +33,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true
