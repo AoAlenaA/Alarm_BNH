@@ -111,7 +111,7 @@ const Game = () => {
   }, [score, targetScore]);
 
   useEffect(() => {
-    if (missedBalls == 10) {
+    if (missedBalls >= 10) {
       playErrorSound();
       setScore(0);
       setMissedBalls(0);

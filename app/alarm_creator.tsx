@@ -109,9 +109,10 @@ export default function App() {
                 break;
         }
 
-        //const melodyPathTrue = melodyPath.toString()
-        //console.log(melodyPathTrue)
-        notifyDates.forEach(date => sendNotification(date, selectedScreen, level, totalExamples, "sound_14.mp3"));
+        const melodyPathTrue = melodyPath.toString()
+        console.log(melodyPathTrue)
+        notifyDates.forEach(date => sendNotification(date, selectedScreen, level, totalExamples, melodyPathTrue));
+        console.log("Уведомление с парметрами:",date, selectedScreen, level, melodyPathTrue, totalExamples)
         router.replace('/(tabs)');
     };
 
