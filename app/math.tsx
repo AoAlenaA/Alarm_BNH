@@ -26,6 +26,7 @@ const MathGameScreen = () => {
       } catch (error) {
         console.error('Ошибка загрузки звука:', error);
       }
+      console.log("Уровень установлен: ", level, " ", totalExamples)
     };
 
 
@@ -56,8 +57,6 @@ const MathGameScreen = () => {
   const generateExample = () => {
     let example = '';
     let answer = 0;
-
-
     if (level === 'Легкий') {
       const num1 = Math.floor(Math.random() * 90) + 10; // Двузначное число
       const num2 = Math.floor(Math.random() * 9) + 1; // Однозначное число
@@ -76,7 +75,7 @@ const MathGameScreen = () => {
       answer = num1 * num2;
     }
 
-
+    console.log("Уровень реальный: ", level, " ", totalExamples)
     setCurrentExample(example);
     setCorrectAnswer(answer);
     setUserAnswer('');

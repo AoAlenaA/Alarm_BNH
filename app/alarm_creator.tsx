@@ -8,7 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Text, TextInput, TouchableOpacity, View, StyleSheet, Alert } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Link } from "expo-router";
-import { useRouter } from 'expo-router'; // Import useRouter for navigation
+import { useRouter, useLocalSearchParams } from 'expo-router'; // Import useRouter for navigation
 import { sendNotification, useNotificationListeners } from './notifications';
 
 
@@ -16,6 +16,7 @@ export default function App() {
     useNotificationListeners();
     const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
     const [date, setDate] = useState<string>("");
+    const { level, totalExamples, selectedScreen, melody } = useLocalSearchParams();
     const [selectedDate, setSelectedDate] = useState<string>("");
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [repeatType, setRepeatType] = useState<'once' | 'weekly' | 'specific'>('once');
@@ -43,7 +44,7 @@ export default function App() {
         setDatePickerVisibility(false);
     };
 
-
+    const dataScreen = '';
     const handleConfirm = (date: Date) => {
         const formattedDate1 = date.toLocaleDateString("ru-RU");
         setDate(formattedDate1);
@@ -109,9 +110,10 @@ export default function App() {
         }
 
 
-        notifyDates.forEach(date => sendNotification(date));
+        notifyDates.forEach(date => sendNotification(date, selectedScreen, level, totalExamples));
         router.replace('/(tabs)');
     };
+
 
 
     const getNextWeekdayDate = (targetDay: number): Date => {
@@ -255,15 +257,15 @@ export default function App() {
                 <Link href="/choose_game" asChild>
                     <TouchableOpacity style={styles.option}>
                         <Text style={styles.text}>Способ пробуждения</Text>
-                        <Text style={styles.optionSubtext}>Игра</Text>
+                        <Text style={styles.optionSubtext}>{selectedScreen || "-"}</Text>
                     </TouchableOpacity>
                 </Link>
 
 
-                <Link href='/alarm_music' asChild>
+                <Link href='/music_category' asChild>
                     <TouchableOpacity style={styles.option}>
                         <Text style={styles.text}>Звук будильника</Text>
-                        <Text style={styles.optionSubtext}>Homecoming</Text>
+                        <Text style={styles.optionSubtext}>{melody || "Homecoming"}</Text>
                     </TouchableOpacity>
                 </Link>
 

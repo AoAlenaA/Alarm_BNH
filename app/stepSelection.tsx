@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 const StepsSelectionScreen = () => {
   const [stepCount, setStepCount] = useState<string>('');
   const router = useRouter();
+  const {selectedScreen } = useLocalSearchParams();
 
-  const handleSavePress = () => {
+  function handleSavePress() {
     const count = parseInt(stepCount, 10);
     if (count > 0 && count <= 10000) {
       router.push({
-        pathname: '/steps',
-        params: { stepCount: stepCount },
+        pathname: '/alarm_creator',
+        params: { selectedScreen: selectedScreen, totalExamples: stepCount},
       });
     } else {
       Alert.alert('Ошибка', 'Введите число от 1 до 100.');
     }
-  };
+  }
 
   const handleCancelPress = () => {
     router.back();

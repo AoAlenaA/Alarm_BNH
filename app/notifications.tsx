@@ -3,6 +3,9 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router'; // Import useRouter for navigation
+import difficulty from "./level"
+import exampleCount from "./level"
+
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -16,6 +19,7 @@ export function useNotificationListeners() {
     const [notificationListener, setNotificationListener] = useState<Notifications.Subscription | null>(null);
     const [responseListener, setResponseListener] = useState<Notifications.Subscription | null>(null);
     const router = useRouter(); // Initialize router for navigation
+    
 
     useEffect(() => {
       registerForPushNotificationsAsync();
@@ -30,6 +34,36 @@ export function useNotificationListeners() {
         if (response.notification.request.content.data.screen === 'math_alarm') {
           router.push('/math_alarm'); // Navigate to math_alarm screen
         }
+        else if (response.notification.request.content.data.screen === 'Игра') {
+          router.push('/game'); 
+        }
+        else if (response.notification.request.content.data.screen === 'Запись текста') {
+          const {exampleCount} = response.notification.request.content.data;
+          router.push({
+            pathname: '/rewriting',
+            params: {count: exampleCount},
+          }); 
+        }
+        else if (response.notification.request.content.data.screen === 'Решение примеров') {
+          const { difficulty, exampleCount } = response.notification.request.content.data;
+          router.push({
+            pathname: '/math',
+            params: { level: difficulty , totalExamples: exampleCount  },
+          });
+        }
+        else if (response.notification.request.content.data.screen === 'Прохождение шагов') {
+          const {exampleCount} = response.notification.request.content.data;
+          router.push({
+            pathname: '/steps',
+            params: {stepCount: exampleCount},
+          });
+        }
+        else{
+          router.push({
+            pathname: '/(tabs)',
+          });
+        }
+        
       });
       setResponseListener(responseSub);
 
@@ -42,7 +76,7 @@ export function useNotificationListeners() {
     return { notificationListener, responseListener };
 }
 
-export async function sendNotification(triggerDate: Date) {
+export async function sendNotification(triggerDate: Date, screenData: string | string[], difficulty: string | string[], exampleCount: string | string[]) {
     await Notifications.setNotificationChannelAsync('new_emails', {
             name: 'E-mail notifications',
             importance: Notifications.AndroidImportance.MAX,
@@ -57,7 +91,7 @@ export async function sendNotification(triggerDate: Date) {
               title: "You've got mail! 📬",
               body: 'Open the notification to read them all',
               sound: 'wake_up.wav', // <- for Android below 8.0
-              data: { screen: 'math_alarm' },
+              data: { screen: screenData, difficulty, exampleCount },
             },
             
             trigger: {

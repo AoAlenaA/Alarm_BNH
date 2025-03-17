@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, StatusBar } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 const TextCountSelection = () => {
   const [selectedCount, setSelectedCount] = useState<number | null>(null);
   const router = useRouter();
+  const {selectedScreen } = useLocalSearchParams();
 
-  const handleCountSelect = (count: number) => {
+  function handleCountSelect(count: number) {
     setSelectedCount(count);
-  };
+  }
 
   const handleCancelPress = () => {
     router.back();
@@ -20,8 +21,8 @@ const TextCountSelection = () => {
       Alert.alert('Ошибка', 'Пожалуйста, выберите количество текстов');
     } else {
       router.push({
-        pathname: '/rewriting',
-        params: { count: selectedCount },
+        pathname: '/alarm_creator',
+        params: { selectedScreen: selectedScreen, totalExamples: selectedCount },
       });
     }
   };

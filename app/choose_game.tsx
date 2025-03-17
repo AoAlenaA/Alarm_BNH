@@ -23,23 +23,26 @@ const App = () => {
     if (selectedIndex === "Решение примеров") {
       router.push({
         pathname: '/level',
-        params: { selectedIndex: selectedIndex },
+        params: { selectedScreen: selectedIndex },
       });
     } else if (selectedIndex === "Прохождение шагов") {
-      router.push('../stepSelection');
-    } else if (selectedIndex === "Сканирование QR-кода") {
-      router.push('/game');
+      router.push({
+        pathname: '/stepSelection',
+        params: { selectedScreen: selectedIndex },
+      });
     } else {
       if (selectedIndex === null) {
         alert('Пожалуйста, выберите способ пробуждения');
       } else {
         if (selectedIndex === "Игра") {
           router.push({
-            pathname: '/game',
+            pathname: '/alarm_creator',
+            params: { selectedScreen: selectedIndex },
           });
         } else if (selectedIndex === "Запись текста") {
           router.push({
             pathname: '/TextCount',
+            params: { selectedScreen: selectedIndex }
           });
         } else {
           router.push('/alarm_creator');

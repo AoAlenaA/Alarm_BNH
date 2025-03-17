@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Platform, StatusBar } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons'; // Импорт иконок
 
-const LevelScreen = () => {
+
+function LevelScreen() {
   const [difficulty, setDifficulty] = useState<string | null>(null);
   const [exampleCount, setExampleCount] = useState<string>('');
   const router = useRouter();
+  const {selectedScreen } = useLocalSearchParams();
+
 
   const handleDifficultyPress = (level: string) => {
     setDifficulty(level);
@@ -21,9 +24,10 @@ const LevelScreen = () => {
       const count = parseInt(exampleCount, 10);
       if (count > 0) {
         router.push({
-          pathname: '/math',
-          params: { level: difficulty, totalExamples: exampleCount },
+          pathname: '/alarm_creator',
+          params: { level: difficulty, totalExamples: exampleCount, selectedScreen: selectedScreen },
         });
+        console.log(selectedScreen)
       } else {
         Alert.alert('Ошибка', 'Количество примеров должно быть больше 0.');
       }
@@ -121,8 +125,7 @@ const LevelScreen = () => {
           placeholder="Количество примеров"
           keyboardType="numeric"
           value={exampleCount}
-          onChangeText={setExampleCount}
-        />
+          onChangeText={setExampleCount} />
       </View>
 
       {/* Кнопки "Отмена" и "Далее" */}
@@ -136,7 +139,7 @@ const LevelScreen = () => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
