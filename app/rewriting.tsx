@@ -140,6 +140,10 @@ const TextInputScreen = () => {
             placeholder="Введите текст"
             multiline
             placeholderTextColor="#999"
+            autoCorrect={false} // Отключаем автокоррекцию
+            autoComplete="off" // Отключаем автозаполнение
+            spellCheck={false} // Отключаем проверку орфографии
+            keyboardType="visible-password" // Отключаем подсказки на клавиатуре
           />
           {errorIndex !== null && (
             <Text style={styles.errorText}>

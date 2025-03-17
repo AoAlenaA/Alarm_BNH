@@ -34,10 +34,26 @@
           "color": "#ffffff",
           "defaultChannel": "default",
           "sounds": [
-            "./assets/sounds/wake_up.wav",
-            "./assets/sounds/error_sound.mp3",
-            "./assets/sounds/alarm_sound.wav"
-            
+            "./assets/sounds/1.mp3",
+            "./assets/sounds/2.mp3",
+            "./assets/sounds/3.mp3",
+            "./assets/sounds/4.mp3",
+            "./assets/sounds/5.mp3",
+            "./assets/sounds/6.mp3",
+            "./assets/sounds/7.mp3",
+            "./assets/sounds/8.mp3",
+            "./assets/sounds/9.mp3",
+            "./assets/sounds/10.mp3",
+            "./assets/sounds/11.mp3",
+            "./assets/sounds/12.mp3",
+            "./assets/sounds/13.mp3",
+            "./assets/sounds/14.mp3",
+            "./assets/sounds/15.mp3",
+            "./assets/sounds/16.mp3",
+            "./assets/sounds/17.mp3",
+            "./assets/sounds/18.mp3",
+            "./assets/sounds/19.mp3",
+            "./assets/sounds/20.mp3"
           ]
         }
       ],

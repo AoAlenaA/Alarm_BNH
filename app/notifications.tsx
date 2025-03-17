@@ -31,10 +31,7 @@ export function useNotificationListeners() {
 
       const responseSub = Notifications.addNotificationResponseReceivedListener(response => {
         console.log('Пользователь нажал на уведомление:', response);
-        if (response.notification.request.content.data.screen === 'math_alarm') {
-          router.push('/math_alarm'); // Navigate to math_alarm screen
-        }
-        else if (response.notification.request.content.data.screen === 'Игра') {
+        if (response.notification.request.content.data.screen === 'Игра') {
           router.push('/game'); 
         }
         else if (response.notification.request.content.data.screen === 'Запись текста') {
@@ -76,11 +73,11 @@ export function useNotificationListeners() {
     return { notificationListener, responseListener };
 }
 
-export async function sendNotification(triggerDate: Date, screenData: string | string[], difficulty: string | string[], exampleCount: string | string[]) {
+export async function sendNotification(triggerDate: Date, screenData: string | string[], difficulty: string | string[], exampleCount: string | string[], melody: string) {
     await Notifications.setNotificationChannelAsync('new_emails', {
             name: 'E-mail notifications',
             importance: Notifications.AndroidImportance.MAX,
-            sound: 'wake_up.wav', 
+            sound: '1.mp3', 
             vibrationPattern: [0, 250, 250, 250], // Опционально: добавьте вибрацию
             enableVibrate: true,// <- for Android 8.0+, see channelId property below
           });
@@ -90,7 +87,7 @@ export async function sendNotification(triggerDate: Date, screenData: string | s
             content: {
               title: "You've got mail! 📬",
               body: 'Open the notification to read them all',
-              sound: 'wake_up.wav', // <- for Android below 8.0
+              sound: '1.mp3', // <- for Android below 8.0
               data: { screen: screenData, difficulty, exampleCount },
             },
             

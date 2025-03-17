@@ -16,7 +16,7 @@ export default function App() {
     useNotificationListeners();
     const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
     const [date, setDate] = useState<string>("");
-    const { level, totalExamples, selectedScreen, melody } = useLocalSearchParams();
+    const { level, totalExamples, selectedScreen, melody, melodyPath } = useLocalSearchParams();
     const [selectedDate, setSelectedDate] = useState<string>("");
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [repeatType, setRepeatType] = useState<'once' | 'weekly' | 'specific'>('once');
@@ -109,8 +109,9 @@ export default function App() {
                 break;
         }
 
-
-        notifyDates.forEach(date => sendNotification(date, selectedScreen, level, totalExamples));
+        const melodyPathTrue = melodyPath.toString()
+        console.log(melodyPathTrue)
+        notifyDates.forEach(date => sendNotification(date, selectedScreen, level, totalExamples, melodyPathTrue));
         router.replace('/(tabs)');
     };
 

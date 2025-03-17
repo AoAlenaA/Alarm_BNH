@@ -3,7 +3,38 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet, Platform } from "re
 import { Audio } from "expo-av";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "./lib/supabase";
-import * as FileSystem from "expo-file-system"; // Для работы с файловой системой
+
+
+
+// Определите тип для объекта melodiesAudio
+type MelodiesAudio = {
+    [key: number]: any; // Ключи могут быть числами
+};
+
+// Создайте объект для хранения аудиофайлов
+const melodiesAudio: MelodiesAudio = {
+    1: require('../assets/sounds/1.mp3'),
+    2: require('../assets/sounds/2.mp3'),
+    3: require('../assets/sounds/3.mp3'),
+    4: require('../assets/sounds/4.mp3'),
+    5: require('../assets/sounds/5.mp3'),
+    6: require('../assets/sounds/6.mp3'),
+    7: require('../assets/sounds/7.mp3'),
+    8: require('../assets/sounds/8.mp3'),
+    9: require('../assets/sounds/9.mp3'),
+    10: require('../assets/sounds/10.mp3'),
+    11: require('../assets/sounds/11.mp3'),
+    12: require('../assets/sounds/12.mp3'),
+    13: require('../assets/sounds/13.mp3'),
+    14: require('../assets/sounds/14.mp3'),
+    15: require('../assets/sounds/15.mp3'),
+    16: require('../assets/sounds/16.mp3'),
+    17: require('../assets/sounds/17.mp3'),
+    18: require('../assets/sounds/18.mp3'),
+    19: require('../assets/sounds/19.mp3'),
+    20: require('../assets/sounds/20.mp3'),
+    
+};
 
 type Melody = {
     Ring_id: number;
@@ -36,50 +67,60 @@ export default function MelodySelection() {
 
     const playSound = async (melodyId: number) => {
         if (sound) {
-            await sound.unloadAsync();
+            await sound.unloadAsync(); // Остановить и выгрузить предыдущий звук
         }
-        try {
-            // Формируем путь к аудиофайлу
-            const audioPath = `${FileSystem.documentDirectory}${melodyId}.mp3`;
 
-            // Загружаем аудиофайл
-            const { sound: newSound } = await Audio.Sound.createAsync(
-                { uri: audioPath },
-                { shouldPlay: true }
-            );
+        try {
+            const audioSource = melodiesAudio[melodyId]; // Получаем аудиофайл по ID
+            if (!audioSource) {
+                console.error('Аудиофайл не найден');
+                return;
+            }
+
+            const { sound: newSound } = await Audio.Sound.createAsync(audioSource);
             setSound(newSound);
+            await newSound.playAsync(); // Воспроизвести звук
         } catch (error) {
-            console.error("Error playing sound:", error);
+            console.error('Ошибка загрузки или воспроизведения звука:', error);
         }
     };
 
     useEffect(() => {
         return () => {
             if (sound) {
-                sound.unloadAsync();
+                sound.unloadAsync(); // Выгрузить звук при размонтировании компонента
             }
         };
     }, [sound]);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (selectedMelody) {
+            // Остановить воспроизведение звука, если он играет
+            if (sound) {
+                await sound.stopAsync(); // Остановить воспроизведение
+                await sound.unloadAsync(); // Выгрузить звук
+            }
+    
             const selectedMelodyText = melodies.find(m => m.Ring_id === selectedMelody)?.Ring;
-            router.push({ pathname: "/alarm_creator", params: { melody: selectedMelodyText } });
+            router.push({ pathname: "/alarm_creator", params: { melody: selectedMelodyText, melodyPath: `${selectedMelody}.mp3` } });
+            console.log(`${selectedMelody}.mp3`)
         } else {
             alert("Пожалуйста, выберите мелодию");
         }
     };
 
-    const handleCancel = () => {
+    const handleCancel = async () => {
+        if (sound) {
+            await sound.stopAsync(); // Остановить воспроизведение
+            await sound.unloadAsync(); // Выгрузить звук
+        }
         router.back();
     };
 
     return (
         <View style={styles.container}>
-            {/* Заголовок "Выберите мелодию" */}
             <Text style={styles.headerText}>Выберите мелодию</Text>
 
-            {/* Список мелодий */}
             <FlatList
                 data={melodies}
                 keyExtractor={(item) => item.Ring_id.toString()}
@@ -100,7 +141,6 @@ export default function MelodySelection() {
                 )}
             />
 
-            {/* Кнопки "Отмена" и "Сохранить" */}
             <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
                     <Text style={styles.buttonText}>Отмена</Text>
