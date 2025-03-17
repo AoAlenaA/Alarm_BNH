@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, BackHandler } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Pedometer } from 'expo-sensors';
 import { Audio } from 'expo-av';
@@ -97,7 +97,7 @@ const StepsScreen = () => {
   useEffect(() => {
     if (currentSteps >= stepsLeft && timeLeft > 0) {
       Alert.alert('Поздравляем!', 'Вы прошли все шаги!', [
-        { text: 'OK', onPress: () => router.back() }
+        { text: 'OK', onPress: () => BackHandler.exitApp() }
       ]);
     }
   }, [currentSteps, timeLeft]);

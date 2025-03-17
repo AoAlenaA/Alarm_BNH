@@ -13,26 +13,26 @@ type MelodiesAudio = {
 
 // Создайте объект для хранения аудиофайлов
 const melodiesAudio: MelodiesAudio = {
-    1: require('../assets/sounds/1.mp3'),
-    2: require('../assets/sounds/2.mp3'),
-    3: require('../assets/sounds/3.mp3'),
-    4: require('../assets/sounds/4.mp3'),
-    5: require('../assets/sounds/5.mp3'),
-    6: require('../assets/sounds/6.mp3'),
-    7: require('../assets/sounds/7.mp3'),
-    8: require('../assets/sounds/8.mp3'),
-    9: require('../assets/sounds/9.mp3'),
-    10: require('../assets/sounds/10.mp3'),
-    11: require('../assets/sounds/11.mp3'),
-    12: require('../assets/sounds/12.mp3'),
-    13: require('../assets/sounds/13.mp3'),
-    14: require('../assets/sounds/14.mp3'),
-    15: require('../assets/sounds/15.mp3'),
-    16: require('../assets/sounds/16.mp3'),
-    17: require('../assets/sounds/17.mp3'),
-    18: require('../assets/sounds/18.mp3'),
-    19: require('../assets/sounds/19.mp3'),
-    20: require('../assets/sounds/20.mp3'),
+    1: require('../assets/sounds/sound_1.mp3'),
+    2: require('../assets/sounds/sound_2.mp3'),
+    3: require('../assets/sounds/sound_3.mp3'),
+    4: require('../assets/sounds/sound_4.mp3'),
+    5: require('../assets/sounds/sound_5.mp3'),
+    6: require('../assets/sounds/sound_6.mp3'),
+    7: require('../assets/sounds/sound_7.mp3'),
+    8: require('../assets/sounds/sound_8.mp3'),
+    9: require('../assets/sounds/sound_9.mp3'),
+    10: require('../assets/sounds/sound_10.mp3'),
+    11: require('../assets/sounds/sound_11.mp3'),
+    12: require('../assets/sounds/sound_12.mp3'),
+    13: require('../assets/sounds/sound_13.mp3'),
+    14: require('../assets/sounds/sound_14.mp3'),
+    15: require('../assets/sounds/sound_15.mp3'),
+    16: require('../assets/sounds/sound_16.mp3'),
+    17: require('../assets/sounds/sound_17.mp3'),
+    18: require('../assets/sounds/sound_18.mp3'),
+    19: require('../assets/sounds/sound_19.mp3'),
+    20: require('../assets/sounds/sound_20.mp3'),
     
 };
 
@@ -102,8 +102,8 @@ export default function MelodySelection() {
             }
     
             const selectedMelodyText = melodies.find(m => m.Ring_id === selectedMelody)?.Ring;
-            router.push({ pathname: "/alarm_creator", params: { melody: selectedMelodyText, melodyPath: `${selectedMelody}.mp3` } });
-            console.log(`${selectedMelody}.mp3`)
+            router.push({ pathname: "/alarm_creator", params: { melody: selectedMelodyText, melodyPath: `sound_${selectedMelody}.mp3` } });
+            console.log(`sound_${selectedMelody}.mp3`)
         } else {
             alert("Пожалуйста, выберите мелодию");
         }

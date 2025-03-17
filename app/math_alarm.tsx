@@ -8,7 +8,7 @@ export default function MathAlarm() {
   useEffect(() => {
     (async () => {
       const { sound } = await Audio.Sound.createAsync(
-        require('../assets/sounds/1.mp3'), // Ensure the path to the sound file is correct
+        require('../assets/sounds/sound_1.mp3'), // Ensure the path to the sound file is correct
         { shouldPlay: true, isLooping: true }
       );
       setSound(sound);

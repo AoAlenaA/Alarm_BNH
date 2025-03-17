@@ -109,9 +109,9 @@ export default function App() {
                 break;
         }
 
-        const melodyPathTrue = melodyPath.toString()
-        console.log(melodyPathTrue)
-        notifyDates.forEach(date => sendNotification(date, selectedScreen, level, totalExamples, melodyPathTrue));
+        //const melodyPathTrue = melodyPath.toString()
+        //console.log(melodyPathTrue)
+        notifyDates.forEach(date => sendNotification(date, selectedScreen, level, totalExamples, "sound_14.mp3"));
         router.replace('/(tabs)');
     };
 
@@ -267,14 +267,6 @@ export default function App() {
                     <TouchableOpacity style={styles.option}>
                         <Text style={styles.text}>Звук будильника</Text>
                         <Text style={styles.optionSubtext}>{melody || "Не выбрано"}</Text>
-                    </TouchableOpacity>
-                </Link>
-
-
-                <Link href='/alarm_vibration' asChild>
-                    <TouchableOpacity style={styles.option}>
-                        <Text style={styles.text}>Вибрация</Text>
-                        <Text style={styles.optionSubtext}>Basic Call</Text>
                     </TouchableOpacity>
                 </Link>
             </View>

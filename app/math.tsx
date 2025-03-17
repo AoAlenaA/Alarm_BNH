@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform, BackHandler } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Audio } from 'expo-av'; // Импорт для работы со звуком
 
@@ -91,8 +91,9 @@ const MathGameScreen = () => {
 
       const totalExamplesNumber = parseInt(totalExamples.toString(), 10);
       if (solvedCount + 1 >= totalExamplesNumber) {
-        Alert.alert('Победа!', 'Вы решили все примеры!');
-        router.back();
+        Alert.alert('Победа!', 'Вы успешно решили все примеры!', [
+                        { text: 'OK', onPress: () => BackHandler.exitApp() }
+                      ]);
       } else {
         generateExample();
         setTimeLeft(60); // Сброс таймера

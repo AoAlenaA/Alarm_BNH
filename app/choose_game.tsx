@@ -36,7 +36,7 @@ const App = () => {
       } else {
         if (selectedIndex === "Игра") {
           router.push({
-            pathname: '/alarm_creator',
+            pathname: '/game_level',
             params: { selectedScreen: selectedIndex },
           });
         } else if (selectedIndex === "Запись текста") {

@@ -32,7 +32,11 @@ export function useNotificationListeners() {
       const responseSub = Notifications.addNotificationResponseReceivedListener(response => {
         console.log('Пользователь нажал на уведомление:', response);
         if (response.notification.request.content.data.screen === 'Игра') {
-          router.push('/game'); 
+          const {exampleCount} = response.notification.request.content.data;
+          router.push({
+            pathname: '/game',
+            params: {targetScore: exampleCount},
+          });
         }
         else if (response.notification.request.content.data.screen === 'Запись текста') {
           const {exampleCount} = response.notification.request.content.data;
@@ -85,8 +89,8 @@ export async function sendNotification(triggerDate: Date, screenData: string | s
           // Eg. schedule the notification
           await Notifications.scheduleNotificationAsync({
             content: {
-              title: "You've got mail! 📬",
-              body: 'Open the notification to read them all',
+              title: "Пора вставать!",
+              body: 'Поскорее выключите будильник',
               sound: melody, // <- for Android below 8.0
               data: { screen: screenData, difficulty, exampleCount },
               sticky: true
