@@ -23,26 +23,23 @@ const App = () => {
     if (selectedIndex === "Решение примеров") {
       router.push({
         pathname: '/level',
-        params: { selectedScreen: selectedIndex },
+        params: { selectedIndex: selectedIndex },
       });
     } else if (selectedIndex === "Прохождение шагов") {
-      router.push({
-        pathname: '/stepSelection',
-        params: { selectedScreen: selectedIndex },
-      });
+      router.push('../stepSelection');
+    } else if (selectedIndex === "Сканирование QR-кода") {
+      router.push('/game');
     } else {
       if (selectedIndex === null) {
         alert('Пожалуйста, выберите способ пробуждения');
       } else {
         if (selectedIndex === "Игра") {
           router.push({
-            pathname: '/alarm_creator',
-            params: { selectedScreen: selectedIndex },
+            pathname: '/game',
           });
         } else if (selectedIndex === "Запись текста") {
           router.push({
             pathname: '/TextCount',
-            params: { selectedScreen: selectedIndex }
           });
         } else {
           router.push('/alarm_creator');
@@ -107,15 +104,7 @@ const App = () => {
               <Ionicons name="help-circle-outline" size={24} color="#1A293C" />
             </TouchableOpacity>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, selectedIndex === "Перевод текста" && styles.buttonSelected]}
-            onPress={() => handleButtonPress("Перевод текста")}
-          >
-            <Text style={[styles.buttonText, selectedIndex === "Перевод текста" && styles.buttonTextSelected]}>Перевод текста</Text>
-            <TouchableOpacity onPress={() => showHint("Перевод текста")} style={styles.hintButton}>
-              <Ionicons name="help-circle-outline" size={24} color="#1A293C" />
-            </TouchableOpacity>
-          </TouchableOpacity>
+         
           <TouchableOpacity
             style={[styles.button, selectedIndex === "Запись текста" && styles.buttonSelected]}
             onPress={() => handleButtonPress("Запись текста")}
@@ -125,15 +114,8 @@ const App = () => {
               <Ionicons name="help-circle-outline" size={24} color="#1A293C" />
             </TouchableOpacity>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, selectedIndex === "Сканирование QR-кода" && styles.buttonSelected]}
-            onPress={() => handleButtonPress("Сканирование QR-кода")}
-          >
-            <Text style={[styles.buttonText, selectedIndex === "Сканирование QR-кода" && styles.buttonTextSelected]}>Сканирование QR-кода</Text>
-            <TouchableOpacity onPress={() => showHint("Сканирование QR-кода")} style={styles.hintButton}>
-              <Ionicons name="help-circle-outline" size={24} color="#1A293C" />
-            </TouchableOpacity>
-          </TouchableOpacity>
+        
+          
           <TouchableOpacity
             style={[styles.button, selectedIndex === "Решение примеров" && styles.buttonSelected]}
             onPress={() => handleButtonPress("Решение примеров")}
