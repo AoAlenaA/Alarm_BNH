@@ -77,7 +77,7 @@ export async function sendNotification(triggerDate: Date, screenData: string | s
     await Notifications.setNotificationChannelAsync('new_emails', {
             name: 'E-mail notifications',
             importance: Notifications.AndroidImportance.MAX,
-            sound: '1.mp3', 
+            sound: melody, 
             vibrationPattern: [0, 250, 250, 250], // Опционально: добавьте вибрацию
             enableVibrate: true,// <- for Android 8.0+, see channelId property below
           });
@@ -87,8 +87,9 @@ export async function sendNotification(triggerDate: Date, screenData: string | s
             content: {
               title: "You've got mail! 📬",
               body: 'Open the notification to read them all',
-              sound: '1.mp3', // <- for Android below 8.0
+              sound: melody, // <- for Android below 8.0
               data: { screen: screenData, difficulty, exampleCount },
+              sticky: true
             },
             
             trigger: {

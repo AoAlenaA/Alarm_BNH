@@ -258,7 +258,7 @@ export default function App() {
                 <Link href="/choose_game" asChild>
                     <TouchableOpacity style={styles.option}>
                         <Text style={styles.text}>Способ пробуждения</Text>
-                        <Text style={styles.optionSubtext}>{selectedScreen || "-"}</Text>
+                        <Text style={styles.optionSubtext}>{selectedScreen || "Не выбрано"}</Text>
                     </TouchableOpacity>
                 </Link>
 
@@ -266,7 +266,7 @@ export default function App() {
                 <Link href='/music_category' asChild>
                     <TouchableOpacity style={styles.option}>
                         <Text style={styles.text}>Звук будильника</Text>
-                        <Text style={styles.optionSubtext}>{melody || "Homecoming"}</Text>
+                        <Text style={styles.optionSubtext}>{melody || "Не выбрано"}</Text>
                     </TouchableOpacity>
                 </Link>
 
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
     optionSubtext: {
-        fontSize: 16,
+        fontSize: 12,
         color: "#73827A",
         fontFamily: "Inter",
     },

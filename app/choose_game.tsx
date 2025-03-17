@@ -108,29 +108,11 @@ const App = () => {
             </TouchableOpacity>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.button, selectedIndex === "Перевод текста" && styles.buttonSelected]}
-            onPress={() => handleButtonPress("Перевод текста")}
-          >
-            <Text style={[styles.buttonText, selectedIndex === "Перевод текста" && styles.buttonTextSelected]}>Перевод текста</Text>
-            <TouchableOpacity onPress={() => showHint("Перевод текста")} style={styles.hintButton}>
-              <Ionicons name="help-circle-outline" size={24} color="#1A293C" />
-            </TouchableOpacity>
-          </TouchableOpacity>
-          <TouchableOpacity
             style={[styles.button, selectedIndex === "Запись текста" && styles.buttonSelected]}
             onPress={() => handleButtonPress("Запись текста")}
           >
             <Text style={[styles.buttonText, selectedIndex === "Запись текста" && styles.buttonTextSelected]}>Запись текста</Text>
             <TouchableOpacity onPress={() => showHint("Запись текста")} style={styles.hintButton}>
-              <Ionicons name="help-circle-outline" size={24} color="#1A293C" />
-            </TouchableOpacity>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, selectedIndex === "Сканирование QR-кода" && styles.buttonSelected]}
-            onPress={() => handleButtonPress("Сканирование QR-кода")}
-          >
-            <Text style={[styles.buttonText, selectedIndex === "Сканирование QR-кода" && styles.buttonTextSelected]}>Сканирование QR-кода</Text>
-            <TouchableOpacity onPress={() => showHint("Сканирование QR-кода")} style={styles.hintButton}>
               <Ionicons name="help-circle-outline" size={24} color="#1A293C" />
             </TouchableOpacity>
           </TouchableOpacity>
