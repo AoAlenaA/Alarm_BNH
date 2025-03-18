@@ -22,14 +22,6 @@ export default function TabLayout() {
             color={color}
             size ={30} />
         }}/>
-      <Tabs.Screen name='analytics'
-        options={{
-            tabBarIcon : ({focused, color}) => 
-            <Ionicons 
-            name= {focused?'analytics-sharp': "analytics-outline"}
-            color={color}
-            size ={30} />
-        }}/>
       <Tabs.Screen name='settings'
         options={{
             tabBarIcon : ({focused, color}) => 

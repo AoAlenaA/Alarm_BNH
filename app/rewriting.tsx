@@ -10,6 +10,7 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   ScrollView,
+  BackHandler,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { supabase } from './lib/supabase'; // Импортируйте ваш клиент Supabase
@@ -103,8 +104,9 @@ const TextInputScreen = () => {
         setErrorIndex(null); // Сбрасываем ошибку
         setErrorText(''); // Сбрасываем текст с ошибкой
       } else {
-        Alert.alert('Поздравляем!', 'Вы успешно завершили задание');
-        router.back();
+        Alert.alert('Поздравляем!', 'Вы успешно прошли задание!', [
+                { text: 'OK', onPress: () => BackHandler.exitApp() }
+              ]);
       }
     } else {
       // Ошибка в тексте
@@ -140,6 +142,10 @@ const TextInputScreen = () => {
             placeholder="Введите текст"
             multiline
             placeholderTextColor="#999"
+            autoCorrect={false} // Отключаем автокоррекцию
+            autoComplete="off" // Отключаем автозаполнение
+            spellCheck={false} // Отключаем проверку орфографии
+            keyboardType="visible-password" // Отключаем подсказки на клавиатуре
           />
           {errorIndex !== null && (
             <Text style={styles.errorText}>
