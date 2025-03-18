@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAvoidingView } from "react-native";
 
 const TextCountSelection = () => {
   const [selectedCount, setSelectedCount] = useState<number | null>(null);
@@ -32,6 +34,12 @@ const TextCountSelection = () => {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+        >
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
@@ -61,6 +69,9 @@ const TextCountSelection = () => {
         </TouchableOpacity>
       </View>
     </View>
+     </ScrollView>
+        </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

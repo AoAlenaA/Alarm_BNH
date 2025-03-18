@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView} from "react-native";
 const StepsSelectionScreen = () => {
   const [stepCount, setStepCount] = useState<string>('');
   const router = useRouter();
@@ -28,10 +29,12 @@ const StepsSelectionScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
+    <SafeAreaView style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+        >
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Выберите количество шагов</Text>
       </View>
@@ -54,7 +57,9 @@ const StepsSelectionScreen = () => {
           <Text style={styles.bottomButtonText}>Сохранить</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </ScrollView>
+       </KeyboardAvoidingView>
+   </SafeAreaView>
   );
 };
 
@@ -66,7 +71,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#6B9080',
     padding: 20,
-    paddingTop: 50, // Отступ для iPhone
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
     alignItems: 'center',
   },
   headerText: {
