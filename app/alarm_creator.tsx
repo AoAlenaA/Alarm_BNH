@@ -10,7 +10,8 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Link } from "expo-router";
 import { useRouter, useLocalSearchParams } from 'expo-router'; // Import useRouter for navigation
 import { sendNotification, useNotificationListeners } from './notifications';
-import { supabase } from './lib/supabase'; // Подключение к Supabase
+import { supabase } from "./lib/supabase";
+
 
 export default function App() {
     useNotificationListeners();
@@ -22,7 +23,82 @@ export default function App() {
     const [repeatType, setRepeatType] = useState<'once' | 'weekly' | 'specific'>('once');
     const [selectedDays, setSelectedDays] = useState<number[]>([]);
     const router = useRouter(); // Initialize router for navigation
+    const [alarmName, setAlarmName] = useState<string>("");
+    //sound_1.mp3
+const extractIndexFromMelody = (melody: string): number | null => {
+    // Используем регулярное выражение для поиска числа в строке
+    const match = melody.match(/\d+/);
+    if (match) {
+        // Преобразуем найденное число в число и возвращаем
+        return parseInt(match[0], 10);
+    }
+    // Если число не найдено, возвращаем null
+    return null;
+};
 
+const getTaskId = async (selectedScreen: string | string[]): Promise<number | null> => {
+    const { data, error } = await supabase
+        .from('Task')
+        .select('Task_id')
+        .eq('Task_text', selectedScreen)
+        .single();
+
+    if (error) {
+        console.error('Error fetching Task_id:', error);
+        return null;
+    }
+    return data?.Task_id || null;
+};
+const getLevelId = async (level: string | string[] ): Promise<number | null> => {
+    const { data, error } = await supabase
+        .from('Level')
+        .select('Level_id')
+        .eq('Level', level)
+        .single();
+
+    if (error) {
+        console.error('Error fetching Level_id:', error);
+        return null;
+    }
+    return data?.Level_id || null;
+};
+
+const getAlarmName = () => {
+    return alarmName.trim() === "" ? "Будильник" : alarmName;
+};
+
+const handleSaveName = () => {
+    const finalAlarmName = getAlarmName(); // Получаем итоговое название будильника
+    Alert.alert("Название будильника", finalAlarmName); // Показываем результат (для демонстрации)
+};
+const saveAlarmToDatabase = async (
+    date: Date,
+    taskId: number,
+    levelId: number,
+    totalExamples: number,
+    alarmName: string,
+    melody: string
+) => {
+    const { data, error } = await supabase
+        .from('Alarm')
+        .insert([
+            {
+                Alarm_time: date, // Преобразуем дату в строку
+                Task_id: getTaskId(selectedScreen),
+                Level_id: getLevelId(level),
+                Count: totalExamples,
+                Alarm_name: handleSaveName,
+                Ring_id: extractIndexFromMelody(melody), // Предполагаем, что melody - это Ring_id
+                Activity: true, // По умолчанию активный будильник
+            },
+        ]);
+
+    if (error) {
+        console.error('Error saving alarm:', error);
+    } else {
+        console.log('Alarm saved successfully:', data);
+    }
+};
     const daysOfWeek = [
         { id: 1, label: 'Пн' },
         { id: 2, label: 'Вт' },
@@ -33,9 +109,11 @@ export default function App() {
         { id: 0, label: 'Вс' },
     ];
 
+
     const showDatePicker = () => {
         setDatePickerVisibility(true);
     };
+
 
     const hideDatePicker = () => {
         setDatePickerVisibility(false);
@@ -53,94 +131,30 @@ export default function App() {
         hideDatePicker();
     };
 
+
     const toggleDay = (day: number) => {
         setSelectedDays(prev =>
             prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
         );
     };
 
-    const getTaskId = async (taskName: string): Promise<number | null> => {
-        const { data, error } = await supabase
-            .from('Task')
-            .select('Task_id')
-            .eq('Task_text', taskName)
-            .single();
 
-        if (error) {
-            console.error('Error fetching Task_id:', error);
-            return null;
-        }
-        return data?.Task_id || null;
-    };
-
-    const getLevelId = async (levelName: string): Promise<number | null> => {
-        const { data, error } = await supabase
-            .from('Level')
-            .select('Level_id')
-            .eq('Level_text', levelName)
-            .single();
-
-        if (error) {
-            console.error('Error fetching Level_id:', error);
-            return null;
-        }
-        return data?.Level_id || null;
-    };
-
-    const saveAlarmToDatabase = async (
-        alarmTime: Date,
-        taskId: number,
-        levelId: number,
-        totalExamples: number,
-        alarmName: string,
-        melody: string
-    ) => {
-        const { data, error } = await supabase
-            .from('Alarm')
-            .insert([
-                {
-                    Alarm_time: alarmTime.toISOString(), // Преобразуем дату в строку
-                    Task_id: taskId,
-                    Level_id: levelId,
-                    Count: totalExamples,
-                    Alarm_name: alarmName,
-                    Ring_id: 1, // Предполагаем, что melody - это Ring_id
-                    Activity: true, // По умолчанию активный будильник
-                },
-            ]);
-
-        if (error) {
-            console.error('Error saving alarm:', error);
-        } else {
-            console.log('Alarm saved successfully:', data);
-        }
-    };
-
-    const handleSave = async () => {
+    const handleSave = () => {
         if (repeatType === 'specific' && !date) {
             Alert.alert("Ошибка", "Пожалуйста, выберите дату.");
             return;
         }
+
 
         if (repeatType === 'weekly' && selectedDays.length === 0) {
             Alert.alert("Ошибка", "Пожалуйста, выберите дни недели.");
             return;
         }
 
-        // Получаем Task_id и Level_id
-        const taskId = await getTaskId(selectedScreen as string);
-        const levelId = await getLevelId(level as string);
-
-        if (!taskId || !levelId) {
-            Alert.alert("Ошибка", "Не удалось найти Task_id или Level_id.");
-            return;
-        }
-
-        // Преобразуем totalExamples в число
-        const totalExamplesNumber = parseInt(totalExamples as string, 10);
 
         let notifyDates: Date[] = [];
         const now = new Date();
+
 
         switch (repeatType) {
             case 'once':
@@ -150,6 +164,7 @@ export default function App() {
                 notifyDates.push(onceDate);
                 break;
 
+
             case 'weekly':
                 selectedDays.forEach(day => {
                     const date = getNextWeekdayDate(day);
@@ -157,6 +172,7 @@ export default function App() {
                     notifyDates.push(date);
                 });
                 break;
+
 
             case 'specific':
                 const specificDate = formatDateTime(date, time);
@@ -168,36 +184,32 @@ export default function App() {
                 break;
         }
 
-        // Сохраняем каждый будильник в базу данных
-        notifyDates.forEach(async (date) => {
-            await saveAlarmToDatabase(
-                date,
-                taskId,
-                levelId,
-                totalExamplesNumber,
-                'Название будильника', // Замените на реальное название
-                melody as string // Предполагаем, что melody - это Ring_id
-            );
-        });
 
+        notifyDates.forEach(date => sendNotification(date, selectedScreen, level, totalExamples));
         router.replace('/(tabs)');
     };
+
+
 
     const getNextWeekdayDate = (targetDay: number): Date => {
         const date = new Date();
         date.setHours(time.hours, time.minutes, time.seconds);
 
+
         const currentDay = date.getDay();
         let daysToAdd = (targetDay - currentDay + 7) % 7;
         if (daysToAdd === 0 && date < new Date()) daysToAdd = 7;
+
 
         date.setDate(date.getDate() + daysToAdd);
         return date;
     };
 
+
     const handleCancel = () => {
         router.replace('/(tabs)');
     };
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -248,6 +260,7 @@ export default function App() {
                 </LinearGradient>
             </View>
 
+
             {/* Выбор типа повторения */}
             <View style={styles.repeatTypeContainer}>
                 <TouchableOpacity
@@ -256,11 +269,13 @@ export default function App() {
                     <Text style={styles.repeatButtonText}>Однократно</Text>
                 </TouchableOpacity>
 
+
                 <TouchableOpacity
                     style={[styles.repeatButton, repeatType === 'weekly' && styles.activeRepeat]}
                     onPress={() => setRepeatType('weekly')}>
                     <Text style={styles.repeatButtonText}>По дням</Text>
                 </TouchableOpacity>
+
 
                 <TouchableOpacity
                     style={[styles.repeatButton, repeatType === 'specific' && styles.activeRepeat]}
@@ -268,6 +283,7 @@ export default function App() {
                     <Text style={styles.repeatButtonText}>Дата</Text>
                 </TouchableOpacity>
             </View>
+
 
             {/* Блок выбора дней недели */}
             {repeatType === 'weekly' && (
@@ -286,6 +302,7 @@ export default function App() {
                 </View>
             )}
 
+
             {/* Блок выбора конкретной даты */}
             {repeatType === 'specific' && (
                 <View>
@@ -303,12 +320,16 @@ export default function App() {
                 </View>
             )}
 
+
             {/* Остальные элементы */}
             <View style={styles.containerOptions}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Название будильника"
-                />
+            <TextInput
+                style={styles.input}
+                placeholder="Название будильника"
+                value={alarmName} // Привязываем значение к состоянию
+                onChangeText={(text) => setAlarmName(text)} // Обновляем состояние при изменении текста
+            />
+
 
                 <Link href="/choose_game" asChild>
                     <TouchableOpacity style={styles.option}>
@@ -317,12 +338,14 @@ export default function App() {
                     </TouchableOpacity>
                 </Link>
 
+
                 <Link href='/music_category' asChild>
                     <TouchableOpacity style={styles.option}>
                         <Text style={styles.text}>Звук будильника</Text>
                         <Text style={styles.optionSubtext}>{melody || "Homecoming"}</Text>
                     </TouchableOpacity>
                 </Link>
+
 
                 <Link href='/alarm_vibration' asChild>
                     <TouchableOpacity style={styles.option}>
@@ -331,6 +354,7 @@ export default function App() {
                     </TouchableOpacity>
                 </Link>
             </View>
+
 
             {/* Кнопки */}
             <View style={styles.buttonContainer}>
@@ -345,11 +369,13 @@ export default function App() {
     );
 }
 
+
 function formatDateTime(dateStr: string, timeObj: { hours: number; minutes: number; seconds: number }): Date {
     const [day, month, year] = dateStr.split('.').map(Number);
     const { hours, minutes, seconds } = timeObj;
     return new Date(year, month - 1, day, hours, minutes, seconds);
 }
+
 
 const styles = StyleSheet.create({
     container: {
