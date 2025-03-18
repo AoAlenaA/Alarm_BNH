@@ -6,13 +6,17 @@ const StepsSelectionScreen = () => {
   const [stepCount, setStepCount] = useState<string>('');
   const router = useRouter();
   const {selectedScreen } = useLocalSearchParams();
+  const {melody, melodyPath } = useLocalSearchParams();
 
   function handleSavePress() {
     const count = parseInt(stepCount, 10);
     if (count > 0 && count <= 10000) {
       router.push({
         pathname: '/alarm_creator',
-        params: { selectedScreen: selectedScreen, totalExamples: stepCount},
+        params: { selectedScreen: selectedScreen, totalExamples: stepCount,
+          melody:melody,
+          melodyPath:melodyPath
+        },
       });
     } else {
       Alert.alert('Ошибка', 'Введите число от 1 до 100.');

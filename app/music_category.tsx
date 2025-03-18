@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, Platform } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "./lib/supabase";
 
 // Определяем тип для категории
@@ -13,6 +13,7 @@ export default function CategorySelection() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
     const router = useRouter();
+    const { selectedScreen, level, totalExamples } = useLocalSearchParams();
 
     useEffect(() => {
         fetchCategories();
@@ -31,7 +32,10 @@ export default function CategorySelection() {
 
     const handleNext = () => {
         if (selectedCategory) {
-            router.push({ pathname: "/music_selection", params: { categoryId: selectedCategory } });
+            router.push({ pathname: "/music_selection", params: { categoryId: selectedCategory, 
+                selectedScreen: selectedScreen, 
+                level: level,
+                totalExamples: totalExamples, } });
         } else {
             alert("Пожалуйста, выберите категорию");
         }

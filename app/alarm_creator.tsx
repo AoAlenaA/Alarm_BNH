@@ -256,7 +256,10 @@ export default function App() {
                 />
 
 
-                <Link href="/choose_game" asChild>
+                <Link href={{
+                            pathname: '/choose_game',
+                            params: { melody, melodyPath}, // Передаем параметры игры
+                        }} asChild>
                     <TouchableOpacity style={styles.option}>
                         <Text style={styles.text}>Способ пробуждения</Text>
                         <Text style={styles.optionSubtext}>{selectedScreen || "Не выбрано"}</Text>
@@ -264,7 +267,10 @@ export default function App() {
                 </Link>
 
 
-                <Link href='/music_category' asChild>
+                <Link  href={{
+                            pathname: '/music_category',
+                            params: { selectedScreen, level, totalExamples }, // Передаем параметры игры
+                        }} asChild>
                     <TouchableOpacity style={styles.option}>
                         <Text style={styles.text}>Звук будильника</Text>
                         <Text style={styles.optionSubtext}>{melody || "Не выбрано"}</Text>

@@ -97,8 +97,9 @@ export async function sendNotification(triggerDate: Date, screenData: string | s
             },
             
             trigger: {
-              date: triggerDate,
-              type: Notifications.SchedulableTriggerInputTypes.DATE,
+              hour:triggerDate.getHours(),
+              minute: triggerDate.getMinutes(),
+              type: Notifications.SchedulableTriggerInputTypes.DAILY,
               channelId: 'new_emails', // <- for Android 8.0+, see definition above
             },
           });

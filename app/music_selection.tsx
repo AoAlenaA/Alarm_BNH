@@ -47,7 +47,7 @@ export default function MelodySelection() {
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [selectedMelody, setSelectedMelody] = useState<number | null>(null);
     const router = useRouter();
-    const { categoryId } = useLocalSearchParams();
+    const { categoryId, selectedScreen, level, totalExamples } = useLocalSearchParams();
 
     useEffect(() => {
         fetchMelodies();
@@ -102,7 +102,16 @@ export default function MelodySelection() {
             }
     
             const selectedMelodyText = melodies.find(m => m.Ring_id === selectedMelody)?.Ring;
-            router.push({ pathname: "/alarm_creator", params: { melody: selectedMelodyText, melodyPath: `sound_${selectedMelody}.mp3` } });
+            router.push({
+                pathname: "/alarm_creator",
+                params: {
+                    melody: selectedMelodyText,
+                    melodyPath: `sound_${selectedMelody}.mp3`,
+                    selectedScreen: selectedScreen, 
+                    level: level,
+                    totalExamples: totalExamples,
+                },
+            });
             console.log(`sound_${selectedMelody}.mp3`)
         } else {
             alert("Пожалуйста, выберите мелодию");

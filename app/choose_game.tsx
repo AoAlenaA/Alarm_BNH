@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, StatusBar } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons'; // Импорт иконок
 
 
 const App = () => {
   const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
   const router = useRouter();
+  const {melody, melodyPath } = useLocalSearchParams();
 
 
   const handleButtonPress = (index: string) => {
@@ -23,12 +24,12 @@ const App = () => {
     if (selectedIndex === "Решение примеров") {
       router.push({
         pathname: '/level',
-        params: { selectedScreen: selectedIndex },
+        params: { selectedScreen: selectedIndex, melody:melody, melodyPath: melodyPath },
       });
     } else if (selectedIndex === "Прохождение шагов") {
       router.push({
         pathname: '/stepSelection',
-        params: { selectedScreen: selectedIndex },
+        params: { selectedScreen: selectedIndex, melody:melody, melodyPath: melodyPath },
       });
     } else {
       if (selectedIndex === null) {
@@ -37,12 +38,12 @@ const App = () => {
         if (selectedIndex === "Игра") {
           router.push({
             pathname: '/game_level',
-            params: { selectedScreen: selectedIndex },
+            params: { selectedScreen: selectedIndex, melody:melody, melodyPath: melodyPath },
           });
         } else if (selectedIndex === "Запись текста") {
           router.push({
             pathname: '/TextCount',
-            params: { selectedScreen: selectedIndex }
+            params: { selectedScreen: selectedIndex, melody:melody, melodyPath: melodyPath },
           });
         } else {
           router.push('/alarm_creator');

@@ -9,6 +9,7 @@ function LevelScreen() {
   const [exampleCount, setExampleCount] = useState<string>('');
   const router = useRouter();
   const {selectedScreen } = useLocalSearchParams();
+  const {melody, melodyPath } = useLocalSearchParams();
 
 
   const handleDifficultyPress = (level: string) => {
@@ -25,7 +26,10 @@ function LevelScreen() {
       if (count > 0) {
         router.push({
           pathname: '/alarm_creator',
-          params: { level: difficulty, totalExamples: exampleCount, selectedScreen: selectedScreen },
+          params: { level: difficulty, totalExamples: exampleCount, selectedScreen: selectedScreen,
+            melody:melody,
+            melodyPath:melodyPath
+          },
         });
         console.log(selectedScreen)
       } else {

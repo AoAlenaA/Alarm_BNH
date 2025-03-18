@@ -7,6 +7,7 @@ const TextCountSelection = () => {
   const [selectedCount, setSelectedCount] = useState<number | null>(null);
   const router = useRouter();
   const {selectedScreen } = useLocalSearchParams();
+  const {melody, melodyPath } = useLocalSearchParams();
 
   function handleCountSelect(count: number) {
     setSelectedCount(count);
@@ -22,7 +23,10 @@ const TextCountSelection = () => {
     } else {
       router.push({
         pathname: '/alarm_creator',
-        params: { selectedScreen: selectedScreen, totalExamples: selectedCount },
+        params: { selectedScreen: selectedScreen, totalExamples: selectedCount, 
+          melody:melody,
+          melodyPath: melodyPath
+         },
       });
     }
   };

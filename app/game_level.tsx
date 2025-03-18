@@ -5,11 +5,15 @@ import { router, useLocalSearchParams } from 'expo-router';
 const Index = () => {
   const [inputScore, setInputScore] = useState('');
   const {selectedScreen } = useLocalSearchParams();
+  const {melody, melodyPath } = useLocalSearchParams();
 
   function handleStartGame() {
         const parsedScore = parseInt(inputScore, 10);
         if (parsedScore > 0) {
-            router.push({ pathname: '/alarm_creator', params: { selectedScreen: selectedScreen, totalExamples: parsedScore.toString() } });
+            router.push({ pathname: '/alarm_creator', params: { selectedScreen: selectedScreen, totalExamples: parsedScore.toString(), 
+                melody:melody,
+                melodyPath:melodyPath
+             } });
         } else {
             Alert.alert('Ошибка', 'Введите корректное количество очков.');
         }
