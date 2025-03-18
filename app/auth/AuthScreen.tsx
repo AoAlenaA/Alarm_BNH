@@ -11,6 +11,10 @@ import { supabase } from '../lib/supabase';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { savePersonId } from '../context/userContext'; // Импортируем функцию для сохранения Person_id
+
+
+
 
 export default function AuthScreen() {
   const [email, setEmail] = useState('');
@@ -19,11 +23,13 @@ export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
+
   async function handleAuth() {
     if (!email || !password) {
       Alert.alert('Ошибка', 'Пожалуйста, заполните все поля');
       return;
     }
+
 
     setLoading(true);
     try {
@@ -35,30 +41,37 @@ export default function AuthScreen() {
           .eq('Login', email)
           .eq('Password', password);
 
+
         console.log('Query result:', personData);
 
+
         if (personError) throw personError;
-        
+       
         if (!personData  || personData.length === 0) {
           throw new Error('Неверный логин или пароль');
         }
-        
+       
         const user = personData[0];
-        
+       
         await supabase.auth.signInWithPassword({
           email: email,
           password: password,
         });
 
+
         // Сохраняем токен
         await AsyncStorage.setItem('userToken', 'authenticated');
+        // Сохраняем Person_id в AsyncStorage
+        await savePersonId(user.Person_id); // Сохраняем Person_id
+
+
         Alert.alert('Успех', 'Вход выполнен успешно', [
           {
             text: 'OK',
             onPress: () => router.replace('/(tabs)')
           }
         ]);
-        
+       
       } else {
         const { data: existingUser } = await supabase
           .from('Person')
@@ -66,9 +79,11 @@ export default function AuthScreen() {
           .eq('Login', email)
           .single();
 
+
         if (existingUser) {
           throw new Error('Пользователь с таким email уже существует');
         }
+
 
         const { data: newPerson, error: insertError } = await supabase
           .from('Person')
@@ -81,15 +96,22 @@ export default function AuthScreen() {
           ])
           .select();
 
+
         if (insertError) throw insertError;
+
 
         await supabase.auth.signUp({
           email: email,
           password: password,
         });
 
+
         // Сохраняем токен
         await AsyncStorage.setItem('userToken', 'authenticated');
+         // Сохраняем Person_id в AsyncStorage
+         await savePersonId(newPerson[0].Person_id); // Сохраняем Person_id
+
+
         Alert.alert('Успех', 'Регистрация прошла успешно', [
           {
             text: 'OK',
@@ -152,6 +174,7 @@ export default function AuthScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

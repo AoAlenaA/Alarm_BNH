@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import { Slot } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
-
+import { useNotificationListeners } from './notifications';
 
 export default function RootLayout() {
+  useNotificationListeners();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
 

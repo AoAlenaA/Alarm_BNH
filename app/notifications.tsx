@@ -104,8 +104,6 @@ async function registerForPushNotificationsAsync() {
 }
 
 export async function sendNotification(triggerDate: {hours: number, minutes: number, seconds: number}, screenData: string | string[], difficulty: string | string[], exampleCount: string | string[], melody: string) {
-    console.log("Функция SendNotification вызвалась");
-
     // Cancel all existing notifications to avoid duplicates
     await Notifications.cancelAllScheduledNotificationsAsync();
 

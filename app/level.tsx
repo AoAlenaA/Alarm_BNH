@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Platform, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons'; // Импорт иконок
+import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAvoidingView , ScrollView} from "react-native";
+
+
 
 
 function LevelScreen() {
@@ -12,13 +16,21 @@ function LevelScreen() {
   const {melody, melodyPath } = useLocalSearchParams();
 
 
+
+
   const handleDifficultyPress = (level: string) => {
     setDifficulty(level);
   };
 
+
+
+
   const handleCancelPress = () => {
     router.back();
   };
+
+
+
 
   const handleSavePress = () => {
     if (difficulty !== null && exampleCount !== '') {
@@ -40,6 +52,9 @@ function LevelScreen() {
     }
   };
 
+
+
+
   const showHint = (level: string) => {
     let message = '';
     switch (level) {
@@ -56,16 +71,31 @@ function LevelScreen() {
         message = 'Нет подсказки для этого уровня';
     }
 
+
+
+
     Alert.alert(`Уровень сложности: ${level}`, message);
   };
 
+
+
+
   return (
+    <SafeAreaView style={{ flex: 1 }}>
+    <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+    >
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       {/* Заголовок */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Выберите уровень сложности</Text>
       </View>
+
+
+
 
       {/* Кнопки выбора уровня сложности */}
       <View style={styles.difficultyButtonsContainer}>
@@ -122,6 +152,9 @@ function LevelScreen() {
         </TouchableOpacity>
       </View>
 
+
+
+
       {/* Поле ввода количества примеров */}
       <View style={styles.inputContainer}>
         <TextInput
@@ -131,6 +164,9 @@ function LevelScreen() {
           value={exampleCount}
           onChangeText={setExampleCount} />
       </View>
+
+
+
 
       {/* Кнопки "Отмена" и "Далее" */}
       <View style={styles.bottomButtonsContainer}>
@@ -142,8 +178,16 @@ function LevelScreen() {
         </TouchableOpacity>
       </View>
     </View>
+    </ScrollView>
+    </KeyboardAvoidingView>
+</SafeAreaView>
+
+
   );
 }
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -236,5 +280,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
   },
 });
+
+
+
 
 export default LevelScreen;

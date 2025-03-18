@@ -6,14 +6,13 @@ import { Audio } from "expo-av"; // for audio feedback (click sound as you scrol
 import * as Haptics from "expo-haptics"; // for haptic feedback
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Text, TextInput, TouchableOpacity, View, StyleSheet, Alert } from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Link } from "expo-router";
 import { useRouter, useLocalSearchParams } from 'expo-router'; // Import useRouter for navigation
-import { sendNotification, useNotificationListeners } from './notifications';
+import { sendNotification} from './notifications';
 
 
 export default function App() {
-    useNotificationListeners();
+    
     const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
     const { level, totalExamples, selectedScreen, melody, melodyPath } = useLocalSearchParams();
     const router = useRouter(); // Initialize router for navigation
@@ -32,12 +31,12 @@ export default function App() {
         console.log(melodyPathTrue)
         sendNotification(time, selectedScreen, level, totalExamples, melodyPathTrue);
         console.log("Уведомление с парметрами:",time, selectedScreen, level, melodyPathTrue, totalExamples)
-        router.replace('/(tabs)');
+        router.push('/(tabs)');
+
     };
 
-
     const handleCancel = () => {
-        router.replace('/(tabs)');
+        router.back();
     };
 
 
@@ -96,8 +95,6 @@ export default function App() {
                     style={styles.input}
                     placeholder="Название будильника"
                 />
-
-
                 <Link href={{
                             pathname: '/choose_game',
                             params: { melody, melodyPath}, // Передаем параметры игры
