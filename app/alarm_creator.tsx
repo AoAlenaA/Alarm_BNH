@@ -15,121 +15,24 @@ import { sendNotification, useNotificationListeners } from './notifications';
 export default function App() {
     useNotificationListeners();
     const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
-    const [date, setDate] = useState<string>("");
     const { level, totalExamples, selectedScreen, melody, melodyPath } = useLocalSearchParams();
-    const [selectedDate, setSelectedDate] = useState<string>("");
-    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-    const [repeatType, setRepeatType] = useState<'once' | 'weekly' | 'specific'>('once');
-    const [selectedDays, setSelectedDays] = useState<number[]>([]);
     const router = useRouter(); // Initialize router for navigation
 
-
-    const daysOfWeek = [
-        { id: 1, label: 'Пн' },
-        { id: 2, label: 'Вт' },
-        { id: 3, label: 'Ср' },
-        { id: 4, label: 'Чт' },
-        { id: 5, label: 'Пт' },
-        { id: 6, label: 'Сб' },
-        { id: 0, label: 'Вс' },
-    ];
-
-
-    const showDatePicker = () => {
-        setDatePickerVisibility(true);
-    };
-
-
-    const hideDatePicker = () => {
-        setDatePickerVisibility(false);
-    };
-
-    const dataScreen = '';
-    const handleConfirm = (date: Date) => {
-        const formattedDate1 = date.toLocaleDateString("ru-RU");
-        setDate(formattedDate1);
-        const formattedDate = date.toLocaleDateString("ru-RU", {
-            day: "numeric",
-            month: "long"
-        });
-        setSelectedDate(formattedDate);
-        hideDatePicker();
-    };
-
-
-    const toggleDay = (day: number) => {
-        setSelectedDays(prev =>
-            prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
-        );
-    };
-
-
     const handleSave = () => {
-        if (repeatType === 'specific' && !date) {
-            Alert.alert("Ошибка", "Пожалуйста, выберите дату.");
+        if (!selectedScreen) {
+            Alert.alert("Ошибка", "Пожалуйста, выберите способ пробуждения.");
             return;
         }
-
-
-        if (repeatType === 'weekly' && selectedDays.length === 0) {
-            Alert.alert("Ошибка", "Пожалуйста, выберите дни недели.");
+        if (!melody) {
+            Alert.alert("Ошибка", "Пожалуйста, выберите звук будильника.");
             return;
-        }
-
-
-        let notifyDates: Date[] = [];
-        const now = new Date();
-
-
-        switch (repeatType) {
-            case 'once':
-                const onceDate = new Date();
-                onceDate.setHours(time.hours, time.minutes, time.seconds);
-                if (onceDate < now) onceDate.setDate(onceDate.getDate() + 1);
-                notifyDates.push(onceDate);
-                break;
-
-
-            case 'weekly':
-                selectedDays.forEach(day => {
-                    const date = getNextWeekdayDate(day);
-                    date.setHours(time.hours, time.minutes, time.seconds);
-                    notifyDates.push(date);
-                });
-                break;
-
-
-            case 'specific':
-                const specificDate = formatDateTime(date, time);
-                if (specificDate < now) {
-                    Alert.alert("Ошибка", "Выбранная дата и время не могут быть в прошлом.");
-                    return;
-                }
-                notifyDates.push(specificDate);
-                break;
         }
 
         const melodyPathTrue = melodyPath.toString()
         console.log(melodyPathTrue)
-        notifyDates.forEach(date => sendNotification(date, selectedScreen, level, totalExamples, melodyPathTrue));
-        console.log("Уведомление с парметрами:",date, selectedScreen, level, melodyPathTrue, totalExamples)
+        sendNotification(time, selectedScreen, level, totalExamples, melodyPathTrue);
+        console.log("Уведомление с парметрами:",time, selectedScreen, level, melodyPathTrue, totalExamples)
         router.replace('/(tabs)');
-    };
-
-
-
-    const getNextWeekdayDate = (targetDay: number): Date => {
-        const date = new Date();
-        date.setHours(time.hours, time.minutes, time.seconds);
-
-
-        const currentDay = date.getDay();
-        let daysToAdd = (targetDay - currentDay + 7) % 7;
-        if (daysToAdd === 0 && date < new Date()) daysToAdd = 7;
-
-
-        date.setDate(date.getDate() + daysToAdd);
-        return date;
     };
 
 
@@ -187,67 +90,6 @@ export default function App() {
                 </LinearGradient>
             </View>
 
-
-            {/* Выбор типа повторения */}
-            <View style={styles.repeatTypeContainer}>
-                <TouchableOpacity
-                    style={[styles.repeatButton, repeatType === 'once' && styles.activeRepeat]}
-                    onPress={() => setRepeatType('once')}>
-                    <Text style={styles.repeatButtonText}>Однократно</Text>
-                </TouchableOpacity>
-
-
-                <TouchableOpacity
-                    style={[styles.repeatButton, repeatType === 'weekly' && styles.activeRepeat]}
-                    onPress={() => setRepeatType('weekly')}>
-                    <Text style={styles.repeatButtonText}>По дням</Text>
-                </TouchableOpacity>
-
-
-                <TouchableOpacity
-                    style={[styles.repeatButton, repeatType === 'specific' && styles.activeRepeat]}
-                    onPress={() => setRepeatType('specific')}>
-                    <Text style={styles.repeatButtonText}>Дата</Text>
-                </TouchableOpacity>
-            </View>
-
-
-            {/* Блок выбора дней недели */}
-            {repeatType === 'weekly' && (
-                <View style={styles.daysContainer}>
-                    {daysOfWeek.map(day => (
-                        <TouchableOpacity
-                            key={day.id}
-                            style={[
-                                styles.dayButton,
-                                selectedDays.includes(day.id) && styles.selectedDay
-                            ]}
-                            onPress={() => toggleDay(day.id)}>
-                            <Text style={styles.dayText}>{day.label}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-            )}
-
-
-            {/* Блок выбора конкретной даты */}
-            {repeatType === 'specific' && (
-                <View>
-                    <TouchableOpacity style={styles.datePickerButton} onPress={showDatePicker}>
-                        <Text style={styles.datePickerText}>
-                            {selectedDate || 'Выберите дату'}
-                        </Text>
-                    </TouchableOpacity>
-                    <DateTimePickerModal
-                        isVisible={isDatePickerVisible}
-                        mode="date"
-                        onConfirm={handleConfirm}
-                        onCancel={hideDatePicker}
-                    />
-                </View>
-            )}
-
-
             {/* Остальные элементы */}
             <View style={styles.containerOptions}>
                 <TextInput
@@ -290,13 +132,6 @@ export default function App() {
             </View>
         </SafeAreaView>
     );
-}
-
-
-function formatDateTime(dateStr: string, timeObj: { hours: number; minutes: number; seconds: number }): Date {
-    const [day, month, year] = dateStr.split('.').map(Number);
-    const { hours, minutes, seconds } = timeObj;
-    return new Date(year, month - 1, day, hours, minutes, seconds);
 }
 
 
