@@ -1,62 +1,44 @@
-import { Link, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { Link, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { View, Text, StyleSheet, Pressable, ScrollView, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { getPersonId } from '../context/userContext';
 
+
 export default function Index() {
+  const { refresh } = useLocalSearchParams();
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
   const [alarms, setAlarms] = useState<any[]>([]);
-  const [personId, setPersonId] = useState<string | null>(null); // Состояние для хранения personId
-  const { refresh } = useLocalSearchParams(); // Получаем параметр refresh
+  const [personId, setPersonId] = useState<string | null>(null);
+  const router = useRouter();
 
-  // Функция для получения personId
-  const fetchPersonId = useCallback(async () => { // useCallback добавлен
+  // Получаем personId
+  const fetchPersonId = async () => {
+    const id = await getPersonId();
+    setPersonId(id);
+    return id;
+  };
+
+  // Загружаем будильники из базы
+  const fetchAlarms = async () => {
     try {
-      const id = await getPersonId();
-      console.log("Person ID fetched:", id); // Логируем Person ID
-      setPersonId(id);
-      return id;
-    } catch (error) {
-      console.error('Ошибка при получении Person ID:', error);
-      return null; // Важно возвращать null в случае ошибки
-    }
-  }, []);
+      const id = await fetchPersonId();
+      if (!id) return;
 
-  // Функция для получения данных о будильниках
-  const fetchAlarms = useCallback(async () => { // useCallback добавлен
-    try {
-      const id = personId; // Используем personId из состояния
-      if (!id) {
-        console.warn('Person_id не найден, ожидаем загрузку...');
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('Alarm')
-        .select('*')
-        .eq('Person_id', id);
+      const { data, error } = await supabase.from('Alarm').select('*').eq('Person_id', id);
 
       if (error) {
         console.error('Ошибка при запросе данных:', error);
         return;
       }
-
-      console.log("Данные будильников получены:", data); // Логируем данные
       setAlarms(data || []);
     } catch (error) {
       console.error('Ошибка при получении данных:', error);
     }
-  }, [personId]); // personId добавлен в зависимости
+  };
 
-  // Получаем Person ID при монтировании компонента
-  useEffect(() => {
-    fetchPersonId();
-  }, [fetchPersonId]);
-
-  // Используем useFocusEffect для обновления данных при каждом переходе на экран И при наличии параметра refresh
   useFocusEffect(
     useCallback(() => {
       if (refresh === 'true' || !refresh) { // Обновляем только если refresh=true или refresh отсутствует
@@ -65,7 +47,6 @@ export default function Index() {
     }, [fetchAlarms, refresh])
   );
 
-  // Обновляем время каждую секунду
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());
@@ -74,12 +55,33 @@ export default function Index() {
     return () => clearInterval(interval);
   }, []);
 
+  // Функция для переключения состояния будильника
+  const toggleAlarm = async (alarmId: string, currentStatus: boolean) => {
+    const { error } = await supabase
+      .from('Alarm')
+      .update({ Activity: !currentStatus })
+      .eq('Alarm_id', alarmId);
+
+    if (error) {
+      console.error('Ошибка обновления состояния будильника:', error);
+      return;
+    }
+
+    setAlarms((prevAlarms) =>
+      prevAlarms.map((alarm) =>
+        alarm.Alarm_id === alarmId ? { ...alarm, Activity: !currentStatus } : alarm
+      )
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      {/* Верхняя часть с текущим временем */}
       <View style={styles.header}>
         <Text style={styles.headerText}>{currentTime}</Text>
       </View>
 
+      {/* Кнопка добавления будильника */}
       <View style={styles.buttonContainer}>
         <Link href="/alarm_creator" asChild>
           <Pressable>
@@ -88,20 +90,36 @@ export default function Index() {
         </Link>
       </View>
 
-      <ScrollView contentContainerStyle={styles.alarmscontainer}>
+      {/* Список будильников */}
+      <ScrollView contentContainerStyle={styles.alarmsContainer}>
         {alarms.length > 0 ? (
           alarms.map((alarm) => (
-            <View key={alarm.Alarm_id} style={styles.alarmItem}>
-              <Text style={styles.alarmText}>Название: {alarm.Alarm_name}</Text>
-              <Text style={styles.alarmText}>Время: {new Date(alarm.Alarm_time).toLocaleTimeString()}</Text>
-              <Text style={styles.alarmText}>Task ID: {alarm.Task_id}</Text>
-              <Text style={styles.alarmText}>Level ID: {alarm.Level_id}</Text>
-              <Text style={styles.alarmText}>Количество: {alarm.Count}</Text>
-              <Text style={styles.alarmText}>Активен: {alarm.Activity ? 'Да' : 'Нет'}</Text>
-            </View>
+            <Pressable 
+              key={alarm.Alarm_id} 
+              style={styles.alarmCard}
+              onPress={() => router.push("/alarm_creator")} // Переход на экран редактирования
+            >
+              <View style={styles.alarmInfo}>
+                <Text style={styles.alarmTime}>
+                  {new Date(alarm.Alarm_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+                <View>
+                  <Text style={styles.alarmName}>{alarm.Alarm_name}</Text>
+                  <Text style={styles.alarmSubtitle}>
+                    {alarm.Task_id === 1 ? 'Игра' : 'Мелодия'}
+                  </Text>
+                </View>
+              </View>
+              <Switch
+                value={alarm.Activity}
+                onValueChange={() => toggleAlarm(alarm.Alarm_id, alarm.Activity)}
+                trackColor={{ false: '#A0A0A0', true: '#6B9080' }}
+                thumbColor={alarm.Activity ? '#CCE3DE' : '#F6FFF8'}
+              />
+            </Pressable>
           ))
         ) : (
-          <Text style={styles.text}>Пока вы не добавили ни один будильник</Text>
+          <Text style={styles.text}>Пока нет будильников</Text>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -113,17 +131,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#CCE3DE',
   },
-  alarmscontainer: {
-    flex: 1,
-    backgroundColor: '#CDE9D8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  text: {
-    color: '#1A293C',
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+  alarmsContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   header: {
     height: '30%',
@@ -141,19 +151,38 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingBottom: 20,
   },
-  alarmItem: {
-    width: '100%',
+  alarmCard: {
+    backgroundColor: '#A4C3B2',
+    borderRadius: 15,
     padding: 15,
     marginBottom: 10,
-    backgroundColor: '#F6FFF8',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#6B9080',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  alarmText: {
+  alarmInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  alarmTime: {
+    fontSize: 28,
+    fontWeight: 'bold',
     color: '#1A293C',
-    fontFamily: 'Inter',
-    fontSize: 16,
-    marginBottom: 5,
+    marginRight: 15,
+  },
+  alarmName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1A293C',
+  },
+  alarmSubtitle: {
+    fontSize: 14,
+    color: '#6B9080',
+  },
+  text: {
+    textAlign: 'center',
+    fontSize: 18,
+    color: '#1A293C',
+    fontWeight: 'bold',
   },
 });

@@ -13,9 +13,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { savePersonId } from '../context/userContext'; // Импортируем функцию для сохранения Person_id
 
-
-
-
 export default function AuthScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,13 +20,11 @@ export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
-
   async function handleAuth() {
     if (!email || !password) {
       Alert.alert('Ошибка', 'Пожалуйста, заполните все поля');
       return;
     }
-
 
     setLoading(true);
     try {
@@ -41,9 +36,7 @@ export default function AuthScreen() {
           .eq('Login', email)
           .eq('Password', password);
 
-
         console.log('Query result:', personData);
-
 
         if (personError) throw personError;
        
@@ -53,17 +46,17 @@ export default function AuthScreen() {
        
         const user = personData[0];
        
-        await supabase.auth.signInWithPassword({
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: email,
           password: password,
         });
 
+        if (signInError) throw signInError;
 
         // Сохраняем токен
-        await AsyncStorage.setItem('userToken', 'authenticated');
+        await AsyncStorage.setItem('userToken', signInData.session.access_token);
         // Сохраняем Person_id в AsyncStorage
         await savePersonId(user.Person_id); // Сохраняем Person_id
-
 
         Alert.alert('Успех', 'Вход выполнен успешно', [
           {
@@ -79,11 +72,9 @@ export default function AuthScreen() {
           .eq('Login', email)
           .single();
 
-
         if (existingUser) {
           throw new Error('Пользователь с таким email уже существует');
         }
-
 
         const { data: newPerson, error: insertError } = await supabase
           .from('Person')
@@ -96,21 +87,23 @@ export default function AuthScreen() {
           ])
           .select();
 
-
         if (insertError) throw insertError;
 
-
-        await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: email,
           password: password,
         });
 
+        if (signUpError) throw signUpError;
 
         // Сохраняем токен
-        await AsyncStorage.setItem('userToken', 'authenticated');
+        if (signUpData.session) {
+          await AsyncStorage.setItem('userToken', signUpData.session.access_token);
+        } else {
+          throw new Error('Session is null');
+        }
          // Сохраняем Person_id в AsyncStorage
          await savePersonId(newPerson[0].Person_id); // Сохраняем Person_id
-
 
         Alert.alert('Успех', 'Регистрация прошла успешно', [
           {
@@ -174,7 +167,6 @@ export default function AuthScreen() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
