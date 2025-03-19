@@ -117,8 +117,10 @@ export async function sendNotification(triggerDate: {hours: number, minutes: num
 
     console.log('Существующие уведомления:', existingNotifications);
 
-    await Notifications.setNotificationChannelAsync('new_emails', {
-        name: 'E-mail notifications',
+    const channelId = `alarm_channel_${melody}`;
+
+    await Notifications.setNotificationChannelAsync(channelId, {
+        name: 'Alarm',
         importance: Notifications.AndroidImportance.MAX,
         sound: melody,
         vibrationPattern: [0, 250, 250, 250], // Опционально: добавьте вибрацию
@@ -138,7 +140,7 @@ export async function sendNotification(triggerDate: {hours: number, minutes: num
             hour: triggerDate.hours,
             minute: triggerDate.minutes,
             type: Notifications.SchedulableTriggerInputTypes.DAILY,
-            channelId: 'new_emails', // <- for Android 8.0+, see definition above
+            channelId: channelId, // <- for Android 8.0+, see definition above
         },
     });
 
