@@ -1,62 +1,69 @@
-import { Link } from 'expo-router';
+import { Link, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from "@expo/vector-icons";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { getPersonId } from '../context/userContext'; // Импортируем функцию для получения Person_id
-
+import { getPersonId } from '../context/userContext';
 
 export default function Index() {
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
   const [alarms, setAlarms] = useState<any[]>([]);
   const [personId, setPersonId] = useState<string | null>(null); // Состояние для хранения personId
-
+  const { refresh } = useLocalSearchParams(); // Получаем параметр refresh
 
   // Функция для получения personId
-  const fetchPersonId = async () => {
-    const id = await getPersonId(); // Получаем personId
-    setPersonId(id); // Сохраняем personId в состоянии
-    return id; // Возвращаем personId
-  };
-
+  const fetchPersonId = useCallback(async () => { // useCallback добавлен
+    try {
+      const id = await getPersonId();
+      console.log("Person ID fetched:", id); // Логируем Person ID
+      setPersonId(id);
+      return id;
+    } catch (error) {
+      console.error('Ошибка при получении Person ID:', error);
+      return null; // Важно возвращать null в случае ошибки
+    }
+  }, []);
 
   // Функция для получения данных о будильниках
-  const fetchAlarms = async () => {
+  const fetchAlarms = useCallback(async () => { // useCallback добавлен
     try {
-      const id = await fetchPersonId(); // Получаем personId
+      const id = personId; // Используем personId из состояния
       if (!id) {
-        console.error('Person_id не найден');
+        console.warn('Person_id не найден, ожидаем загрузку...');
         return;
       }
 
-
-      // Запрашиваем данные из таблицы Alarm для текущего пользователя
       const { data, error } = await supabase
         .from('Alarm')
         .select('*')
-        .eq('Person_id', id); // Используем значение personId
-
+        .eq('Person_id', id);
 
       if (error) {
         console.error('Ошибка при запросе данных:', error);
         return;
       }
 
-
-      // Устанавливаем данные в состояние
+      console.log("Данные будильников получены:", data); // Логируем данные
       setAlarms(data || []);
     } catch (error) {
       console.error('Ошибка при получении данных:', error);
     }
-  };
+  }, [personId]); // personId добавлен в зависимости
 
-
-  // Загружаем данные при монтировании компонента
+  // Получаем Person ID при монтировании компонента
   useEffect(() => {
-    fetchAlarms();
-  }, []); // Зависимость от personId не нужна, так как fetchAlarms сама вызывает fetchPersonId
+    fetchPersonId();
+  }, [fetchPersonId]);
 
+  // Используем useFocusEffect для обновления данных при каждом переходе на экран И при наличии параметра refresh
+  useFocusEffect(
+    useCallback(() => {
+      if (refresh === 'true' || !refresh) { // Обновляем только если refresh=true или refresh отсутствует
+        fetchAlarms();
+      }
+    }, [fetchAlarms, refresh])
+  );
 
   // Обновляем время каждую секунду
   useEffect(() => {
@@ -64,20 +71,15 @@ export default function Index() {
       setCurrentTime(new Date().toLocaleTimeString());
     }, 1000);
 
-
-    return () => clearInterval(interval); // Очистка интервала при размонтировании компонента
+    return () => clearInterval(interval);
   }, []);
-
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Заголовок */}
       <View style={styles.header}>
         <Text style={styles.headerText}>{currentTime}</Text>
       </View>
 
-
-      {/* Кнопка добавления будильника */}
       <View style={styles.buttonContainer}>
         <Link href="/alarm_creator" asChild>
           <Pressable>
@@ -86,8 +88,6 @@ export default function Index() {
         </Link>
       </View>
 
-
-      {/* Место для будильников */}
       <ScrollView contentContainerStyle={styles.alarmscontainer}>
         {alarms.length > 0 ? (
           alarms.map((alarm) => (
@@ -107,7 +107,6 @@ export default function Index() {
     </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
