@@ -1,81 +1,79 @@
-import { Link } from 'expo-router';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { Link, useRouter } from 'expo-router';
+import { View, Text, StyleSheet, Pressable, ScrollView, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { getPersonId } from '../context/userContext'; // Импортируем функцию для получения Person_id
-
+import { getPersonId } from '../context/userContext';
 
 export default function Index() {
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
   const [alarms, setAlarms] = useState<any[]>([]);
-  const [personId, setPersonId] = useState<string | null>(null); // Состояние для хранения personId
+  const [personId, setPersonId] = useState<string | null>(null);
+  const router = useRouter();
 
-
-  // Функция для получения personId
+  // Получаем personId
   const fetchPersonId = async () => {
-    const id = await getPersonId(); // Получаем personId
-    setPersonId(id); // Сохраняем personId в состоянии
-    return id; // Возвращаем personId
+    const id = await getPersonId();
+    setPersonId(id);
+    return id;
   };
 
-
-  // Функция для получения данных о будильниках
+  // Загружаем будильники из базы
   const fetchAlarms = async () => {
     try {
-      const id = await fetchPersonId(); // Получаем personId
-      if (!id) {
-        console.error('Person_id не найден');
-        return;
-      }
+      const id = await fetchPersonId();
+      if (!id) return;
 
-
-      // Запрашиваем данные из таблицы Alarm для текущего пользователя
-      const { data, error } = await supabase
-        .from('Alarm')
-        .select('*')
-        .eq('Person_id', id); // Используем значение personId
-
+      const { data, error } = await supabase.from('Alarm').select('*').eq('Person_id', id);
 
       if (error) {
         console.error('Ошибка при запросе данных:', error);
         return;
       }
-
-
-      // Устанавливаем данные в состояние
       setAlarms(data || []);
     } catch (error) {
       console.error('Ошибка при получении данных:', error);
     }
   };
 
-
-  // Загружаем данные при монтировании компонента
   useEffect(() => {
     fetchAlarms();
-  }, []); // Зависимость от personId не нужна, так как fetchAlarms сама вызывает fetchPersonId
+  }, []);
 
-
-  // Обновляем время каждую секунду
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());
     }, 1000);
 
-
-    return () => clearInterval(interval); // Очистка интервала при размонтировании компонента
+    return () => clearInterval(interval);
   }, []);
 
+  // Функция для переключения состояния будильника
+  const toggleAlarm = async (alarmId: string, currentStatus: boolean) => {
+    const { error } = await supabase
+      .from('Alarm')
+      .update({ Activity: !currentStatus })
+      .eq('Alarm_id', alarmId);
+
+    if (error) {
+      console.error('Ошибка обновления состояния будильника:', error);
+      return;
+    }
+
+    setAlarms((prevAlarms) =>
+      prevAlarms.map((alarm) =>
+        alarm.Alarm_id === alarmId ? { ...alarm, Activity: !currentStatus } : alarm
+      )
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Заголовок */}
+      {/* Верхняя часть с текущим временем */}
       <View style={styles.header}>
         <Text style={styles.headerText}>{currentTime}</Text>
       </View>
-
 
       {/* Кнопка добавления будильника */}
       <View style={styles.buttonContainer}>
@@ -86,45 +84,50 @@ export default function Index() {
         </Link>
       </View>
 
-
-      {/* Место для будильников */}
-      <ScrollView contentContainerStyle={styles.alarmscontainer}>
+      {/* Список будильников */}
+      <ScrollView contentContainerStyle={styles.alarmsContainer}>
         {alarms.length > 0 ? (
           alarms.map((alarm) => (
-            <View key={alarm.Alarm_id} style={styles.alarmItem}>
-              <Text style={styles.alarmText}>Название: {alarm.Alarm_name}</Text>
-              <Text style={styles.alarmText}>Время: {new Date(alarm.Alarm_time).toLocaleTimeString()}</Text>
-              <Text style={styles.alarmText}>Task ID: {alarm.Task_id}</Text>
-              <Text style={styles.alarmText}>Level ID: {alarm.Level_id}</Text>
-              <Text style={styles.alarmText}>Количество: {alarm.Count}</Text>
-              <Text style={styles.alarmText}>Активен: {alarm.Activity ? 'Да' : 'Нет'}</Text>
-            </View>
+            <Pressable 
+              key={alarm.Alarm_id} 
+              style={styles.alarmCard}
+              onPress={() => router.push("/alarm_creator")} // Переход на экран редактирования
+            >
+              <View style={styles.alarmInfo}>
+                <Text style={styles.alarmTime}>
+                  {new Date(alarm.Alarm_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+                <View>
+                  <Text style={styles.alarmName}>{alarm.Alarm_name}</Text>
+                  <Text style={styles.alarmSubtitle}>
+                    {alarm.Task_id === 1 ? 'Игра' : 'Мелодия'}
+                  </Text>
+                </View>
+              </View>
+              <Switch
+                value={alarm.Activity}
+                onValueChange={() => toggleAlarm(alarm.Alarm_id, alarm.Activity)}
+                trackColor={{ false: '#A0A0A0', true: '#6B9080' }}
+                thumbColor={alarm.Activity ? '#CCE3DE' : '#F6FFF8'}
+              />
+            </Pressable>
           ))
         ) : (
-          <Text style={styles.text}>Пока вы не добавили ни один будильник</Text>
+          <Text style={styles.text}>Пока нет будильников</Text>
         )}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#CCE3DE',
   },
-  alarmscontainer: {
-    flex: 1,
-    backgroundColor: '#CDE9D8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  text: {
-    color: '#1A293C',
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+  alarmsContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   header: {
     height: '30%',
@@ -142,19 +145,38 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingBottom: 20,
   },
-  alarmItem: {
-    width: '100%',
+  alarmCard: {
+    backgroundColor: '#A4C3B2',
+    borderRadius: 15,
     padding: 15,
     marginBottom: 10,
-    backgroundColor: '#F6FFF8',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#6B9080',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  alarmText: {
+  alarmInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  alarmTime: {
+    fontSize: 28,
+    fontWeight: 'bold',
     color: '#1A293C',
-    fontFamily: 'Inter',
-    fontSize: 16,
-    marginBottom: 5,
+    marginRight: 15,
+  },
+  alarmName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1A293C',
+  },
+  alarmSubtitle: {
+    fontSize: 14,
+    color: '#6B9080',
+  },
+  text: {
+    textAlign: 'center',
+    fontSize: 18,
+    color: '#1A293C',
+    fontWeight: 'bold',
   },
 });
