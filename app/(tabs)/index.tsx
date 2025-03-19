@@ -77,25 +77,23 @@ export default function Index() {
   }, []);
 
   const toggleAlarm = async (alarmId: string, currentStatus: boolean) => {
-    try {
-      setAlarms((prevAlarms) =>
+
+    setAlarms((prevAlarms) =>
         prevAlarms.map((alarm) =>
           alarm.Alarm_id === alarmId ? { ...alarm, Activity: !currentStatus } : alarm
         )
       );
 
+    console.log('Новое состояние', !currentStatus)
+    try {
       const { error } = await supabase
         .from('Alarm')
         .update({ Activity: !currentStatus })
         .eq('Alarm_id', alarmId);
+      console.log("Состояние обновилось")
 
       if (error) {
         console.error('Ошибка обновления состояния будильника:', error);
-        setAlarms((prevAlarms) =>
-          prevAlarms.map((alarm) =>
-            alarm.Alarm_id === alarmId ? { ...alarm, Activity: currentStatus } : alarm
-          )
-        );
       }
     } catch (error) {
       console.error('Ошибка при переключении будильника:', error);
@@ -108,6 +106,7 @@ export default function Index() {
   };
 
   const deleteAlarm = async () => {
+    console.log('Удаляю будильник')
     if (!selectedAlarmId) return;
 
     try {
@@ -126,6 +125,7 @@ export default function Index() {
     } catch (error) {
       console.error('Ошибка при удалении будильника:', error);
     }
+    console.log('Удалила будильник')
   };
 
   return (
