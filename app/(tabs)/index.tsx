@@ -1,5 +1,5 @@
 import { Link, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { View, Text, StyleSheet, Pressable, ScrollView, Switch } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, Switch, Modal, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect, useCallback } from 'react';
@@ -11,33 +11,32 @@ export default function Index() {
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
   const [alarms, setAlarms] = useState<any[]>([]);
   const [personId, setPersonId] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedAlarmId, setSelectedAlarmId] = useState<string | null>(null);
   const router = useRouter();
 
-  // Получаем personId
   const fetchPersonId = async () => {
     const id = await getPersonId();
     setPersonId(id);
     return id;
   };
 
-  // Загружаем будильники из базы
   const fetchAlarms = async () => {
     try {
       const id = await fetchPersonId();
       if (!id) return;
 
-      // Загружаем будильники
       const { data: alarmsData, error: alarmsError } = await supabase
         .from('Alarm')
         .select('*')
-        .eq('Person_id', id);
+        .eq('Person_id', id)
+        .order('Alarm_time', { ascending: true });
 
       if (alarmsError) {
         console.error('Ошибка при запросе данных:', alarmsError);
         return;
       }
 
-      // Загружаем задачи для каждого будильника
       const alarmsWithTasks = await Promise.all(
         alarmsData.map(async (alarm) => {
           const { data: taskData, error: taskError } = await supabase
@@ -63,7 +62,7 @@ export default function Index() {
 
   useFocusEffect(
     useCallback(() => {
-      if (refresh === 'true' || !refresh) { // Обновляем только если refresh=true или refresh отсутствует
+      if (refresh === 'true' || !refresh) {
         fetchAlarms();
       }
     }, [fetchAlarms, refresh])
@@ -77,17 +76,14 @@ export default function Index() {
     return () => clearInterval(interval);
   }, []);
 
-  // Функция для переключения состояния будильника
   const toggleAlarm = async (alarmId: string, currentStatus: boolean) => {
     try {
-      // Сразу обновляем состояние локально
       setAlarms((prevAlarms) =>
         prevAlarms.map((alarm) =>
           alarm.Alarm_id === alarmId ? { ...alarm, Activity: !currentStatus } : alarm
         )
       );
 
-      // Затем обновляем состояние в базе данных
       const { error } = await supabase
         .from('Alarm')
         .update({ Activity: !currentStatus })
@@ -95,7 +91,6 @@ export default function Index() {
 
       if (error) {
         console.error('Ошибка обновления состояния будильника:', error);
-        // Если произошла ошибка, откатываем локальное состояние
         setAlarms((prevAlarms) =>
           prevAlarms.map((alarm) =>
             alarm.Alarm_id === alarmId ? { ...alarm, Activity: currentStatus } : alarm
@@ -107,14 +102,38 @@ export default function Index() {
     }
   };
 
+  const handleLongPress = (alarmId: string) => {
+    setSelectedAlarmId(alarmId);
+    setModalVisible(true);
+  };
+
+  const deleteAlarm = async () => {
+    if (!selectedAlarmId) return;
+
+    try {
+      const { error } = await supabase
+        .from('Alarm')
+        .delete()
+        .eq('Alarm_id', selectedAlarmId);
+
+      if (error) {
+        console.error('Ошибка удаления будильника:', error);
+        return;
+      }
+
+      setAlarms((prevAlarms) => prevAlarms.filter((alarm) => alarm.Alarm_id !== selectedAlarmId));
+      setModalVisible(false);
+    } catch (error) {
+      console.error('Ошибка при удалении будильника:', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Верхняя часть с текущим временем */}
       <View style={styles.header}>
         <Text style={styles.headerText}>{currentTime}</Text>
       </View>
 
-      {/* Кнопка добавления будильника */}
       <View style={styles.buttonContainer}>
         <Link href="/alarm_creator" asChild>
           <Pressable>
@@ -123,14 +142,14 @@ export default function Index() {
         </Link>
       </View>
 
-      {/* Список будильников */}
       <ScrollView contentContainerStyle={styles.alarmsContainer}>
         {alarms.length > 0 ? (
           alarms.map((alarm) => (
             <Pressable 
               key={alarm.Alarm_id} 
               style={styles.alarmCard}
-              onPress={() => router.push("/alarm_creator")} // Переход на экран редактирования
+              onPress={() => router.push("/alarm_creator")}
+              onLongPress={() => handleLongPress(alarm.Alarm_id)}
             >
               <View style={styles.alarmInfo}>
                 <Text style={styles.alarmTime}>
@@ -144,8 +163,8 @@ export default function Index() {
                 </View>
               </View>
               <Switch
-                value={alarm.Activity} // Привязка значения
-                onValueChange={() => toggleAlarm(alarm.Alarm_id, alarm.Activity)} // Обработчик изменения
+                value={alarm.Activity}
+                onValueChange={() => toggleAlarm(alarm.Alarm_id, alarm.Activity)}
                 trackColor={{ false: '#A0A0A0', true: '#6B9080' }}
                 thumbColor={alarm.Activity ? '#CCE3DE' : '#F6FFF8'}
               />
@@ -155,6 +174,27 @@ export default function Index() {
           <Text style={styles.text}>Пока нет будильников</Text>
         )}
       </ScrollView>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Вы точно хотите удалить будильник?</Text>
+            <View style={styles.modalButtons}>
+              <Pressable style={styles.modalButton} onPress={deleteAlarm}>
+                <Text style={styles.modalButtonText}>Да</Text>
+              </Pressable>
+              <Pressable style={styles.modalButton} onPress={() => setModalVisible(false)}>
+                <Text style={styles.modalButtonText}>Нет</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -224,5 +264,39 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#1A293C',
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 15,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    backgroundColor: '#6B9080',
+    borderRadius: 10,
+    padding: 10,
+    width: '45%',
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
   },
 });
