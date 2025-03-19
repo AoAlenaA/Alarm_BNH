@@ -84,36 +84,13 @@ export default function App() {
     const task_id_new = await getTaskId(finaltask);
     console.log("Task_id:", task_id_new);
 
-        // Преобразуем level в строку
-const selectedLevelString = Array.isArray(level) 
-? level.join("") // Объединяем массив в строку без разделителей
-: level; // Если это уже строка, оставляем как есть
-
-// Убираем пробел в конце, если он есть
-const finallevel = selectedLevelString.replace(/ $/, "");
-
-// Функция для получения Level_id
-const getLevelId = async (level: string) => {
-console.log(level);
-const { data, error } = await supabase
-    .from('Level')
-    .select('Level_id')
-    .eq('Level_level', level)
-    .single();
-
-if (error) {
-    console.error('Error fetching Level_id:', error);
-    return null;
-}
-return data?.Level_id || null;
-};
+    if (task_id_new!=4){
+        
 
 
-
-
-
-
-
+         console.log("tttttttttttttttttttttttttttttttt");
+         // Функция для получения Level_id
+         
         const toNumeric = (value: string | string[]) => {
             const numericValue = parseInt(
                 Array.isArray(value) ? value[0] : value,
@@ -131,18 +108,17 @@ return data?.Level_id || null;
         const finalAlarmName = getFinalAlarmName();
         const id = await getPersonId(); // Получаем personId
          // Функция для форматирования времени
-    const formatTime = (time: { hours: number; minutes: number; seconds: number }): string => {
+        const formatTime = (time: { hours: number; minutes: number; seconds: number }): string => {
         const pad = (num: number) => (num < 10 ? `0${num}` : num);
         return `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`;
-    };
-    const selectedMelody = melodyPathTrue.match(/\d+/); // Находит первое число в строке
-    if(selectedMelody){
-    const selectedMelodyNumber = parseInt(selectedMelody[0], 10); // Преобразуем строку в число
+        };
+        const selectedMelody = melodyPathTrue.match(/\d+/); // Находит первое число в строке
+        if(selectedMelody){
+        const selectedMelodyNumber = parseInt(selectedMelody[0], 10); // Преобразуем строку в число
     
-    const level_id_new = await getLevelId(finallevel);
-    console.log("Level_id:", level_id_new);
-    const newtime = formatTime(time);
-    console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new , score, id);
+        const level_id_new = 0;
+        const newtime = formatTime(time);
+        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new , score, id);
         const { data, error } = await supabase
         .from('Alarm')
         .insert([
@@ -173,7 +149,108 @@ return data?.Level_id || null;
 }
     
 
+
+    }
+    else {
+        // Преобразуем level в строку
+        const selectedLevelString = Array.isArray(level) 
+        ? level.join("") // Объединяем массив в строку без разделителей
+        : level; // Если это уже строка, оставляем как есть
+        console.log("ncjncjndcdecnlkencfeklfc", selectedLevelString);
+        // Убираем пробел в конце, если он есть
+        const finallevel = selectedLevelString.replace(/ $/, "");
+
+
+         console.log("tttttttttttttttttttttttttttttttt");
+         // Функция для получения Level_id
+        const getLevelId = async (level: string) => {
+        console.log(level);
+         const { data, error } = await supabase
+        .from('Level')
+        .select('Level_id')
+        .eq('Level_level', level)
+        .single();
+    
+        if (error) {
+        console.error('Error fetching Level_id:', error);
+        return null;
+        }
+        return data?.Level_id || null;
+        };
+    
+    
+    
+
+
+
+        const toNumeric = (value: string | string[]) => {
+            const numericValue = parseInt(
+                Array.isArray(value) ? value[0] : value,
+                10
+            );
+            if (isNaN(numericValue)) {
+                console.error("Ошибка: значение не является числом");
+                return null; // Возвращаем null, если преобразование не удалось
+            }
+            return numericValue;
+        };
+
+        const score = toNumeric(totalExamples);
+       
+        const finalAlarmName = getFinalAlarmName();
+        const id = await getPersonId(); // Получаем personId
+         // Функция для форматирования времени
+        const formatTime = (time: { hours: number; minutes: number; seconds: number }): string => {
+        const pad = (num: number) => (num < 10 ? `0${num}` : num);
+        return `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`;
+        };
+        const selectedMelody = melodyPathTrue.match(/\d+/); // Находит первое число в строке
+        if(selectedMelody){
+        const selectedMelodyNumber = parseInt(selectedMelody[0], 10); // Преобразуем строку в число
+    
+        const level_id_new = await getLevelId(finallevel);
+        console.log("Level_id:", level_id_new);
+        const newtime = formatTime(time);
+        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new , score, id);
+        const { data, error } = await supabase
+        .from('Alarm')
+        .insert([
+            {
+                Ring_id: selectedMelodyNumber,
+                Alarm_name: finalAlarmName,
+                Alarm_time:newtime,
+                Task_id: task_id_new,
+                Level_id: level_id_new,
+                Count: score,
+                Activity: true,
+                Person_id: id
+            },
+        ]);
+
+
+    if (error) {
+        console.error('Error saving alarm:', error);
+        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
+        Alert.alert("Ошибка", "Не удалось сохранить будильник.");
+    } else {
+        console.log('Alarm saved successfully:', data);
+        Alert.alert("Успех", "Будильник успешно сохранен.");
+        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
+        router.replace('/(tabs)');
+    }
+
+    }
+    
+
+
+    }
+    
+        
+
     };
+    
+
+   
 
     const handleCancel = () => {
         router.back();
