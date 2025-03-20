@@ -8,7 +8,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Text, TextInput, TouchableOpacity, View, StyleSheet, Alert } from "react-native";
 import { Link } from "expo-router";
 import { useRouter, useLocalSearchParams } from 'expo-router'; // Import useRouter for navigation
-import { sendNotification} from './notifications';
 import { supabase } from "./lib/supabase";
 import { getPersonId } from './context/userContext';
 
@@ -46,9 +45,6 @@ export default function App() {
         }
 
         const melodyPathTrue = melodyPath.toString()
-        console.log(melodyPathTrue)
-        sendNotification(time, selectedScreen, level, totalExamples, melodyPathTrue);
-        console.log("Уведомление с парметрами:",time, selectedScreen, level, melodyPathTrue, totalExamples)
         router.push('/(tabs)');
 
         
@@ -88,8 +84,6 @@ export default function App() {
         
 
 
-         console.log("tttttttttttttttttttttttttttttttt");
-         // Функция для получения Level_id
          
         const toNumeric = (value: string | string[]) => {
             const numericValue = parseInt(

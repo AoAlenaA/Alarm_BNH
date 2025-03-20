@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { getPersonId } from '../context/userContext';
+import { sendNotification} from '../notifications';
+import * as Notifications from 'expo-notifications';
 
 export default function Index() {
   const { refresh } = useLocalSearchParams();
@@ -49,12 +51,36 @@ export default function Index() {
             console.error('Ошибка при запросе задачи:', taskError);
             return { ...alarm, Task_task: 'Неизвестно' };
           }
-
           return { ...alarm, Task_task: taskData.Task_task };
         })
       );
 
       setAlarms(alarmsWithTasks);
+      alarms.map(async (alarm) => {
+        const existingNotifications = await Notifications.getAllScheduledNotificationsAsync();
+        const notificationId = alarm.Alarm_id.toString();
+        if (alarm.Activity) {
+          if (!existingNotifications.some(notification => notification.identifier === notificationId)) {
+            const [hours, minutes, seconds] = alarm.Alarm_time.split(':').map(Number);
+            sendNotification(
+              { hours, minutes, seconds},
+              alarm.Task_task,
+              alarm.Level_id,
+              alarm.Count,
+              `sound_${alarm.Ring_id}.mp3`,
+              notificationId
+            );
+          }
+        } else {
+          // Если будильник неактивен, но уведомление существует, удаляем его
+          if (existingNotifications.some(notification => notification.identifier === notificationId)) {
+            await Notifications.cancelScheduledNotificationAsync(notificationId);
+            console.log('Будильник отключен')
+          }
+        }
+        
+      })
+        
     } catch (error) {
       console.error('Ошибка при получении данных:', error);
     }
@@ -114,6 +140,7 @@ export default function Index() {
         .from('Alarm')
         .delete()
         .eq('Alarm_id', selectedAlarmId);
+        await Notifications.cancelScheduledNotificationAsync(selectedAlarmId);
 
       if (error) {
         console.error('Ошибка удаления будильника:', error);
@@ -148,7 +175,7 @@ export default function Index() {
             <Pressable 
               key={alarm.Alarm_id} 
               style={styles.alarmCard}
-              onPress={() => router.push("/alarm_creator")}
+              onPress={() => router.push({pathname:"/alarm_creator"})}
               onLongPress={() => handleLongPress(alarm.Alarm_id)}
             >
               <View style={styles.alarmInfo}>

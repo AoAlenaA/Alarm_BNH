@@ -103,20 +103,9 @@ async function registerForPushNotificationsAsync() {
     }
 }
 
-export async function sendNotification(triggerDate: {hours: number, minutes: number, seconds: number}, screenData: string | string[], difficulty: string | string[], exampleCount: string | string[], melody: string) {
+export async function sendNotification(triggerDate: {hours: number, minutes: number, seconds: number}, screenData: string | string[], difficulty: string | string[], exampleCount: string | string[], melody: string, notificationId: string) {
     // Cancel all existing notifications to avoid duplicates
-    await Notifications.cancelAllScheduledNotificationsAsync();
-
-    // Check if a notification with the same identifier already exists
-    const existingNotifications = await Notifications.getAllScheduledNotificationsAsync();
-    const notificationId = `${triggerDate.hours}-${triggerDate.minutes}-${triggerDate.seconds}`;
-    if (existingNotifications.some(notification => notification.identifier === notificationId)) {
-        console.log('Уведомление с таким идентификатором уже существует, пропускаем...');
-        return;
-    }
-
-    console.log('Существующие уведомления:', existingNotifications);
-
+    
     const channelId = `alarm_channel_${melody}`;
 
     await Notifications.setNotificationChannelAsync(channelId, {
@@ -124,7 +113,8 @@ export async function sendNotification(triggerDate: {hours: number, minutes: num
         importance: Notifications.AndroidImportance.MAX,
         sound: melody,
         vibrationPattern: [0, 250, 250, 250], // Опционально: добавьте вибрацию
-        enableVibrate: true, // <- for Android 8.0+, see channelId property below
+        enableVibrate: true, 
+        // <- for Android 8.0+, see channelId property below
     });
 
     // Schedule the notification
@@ -143,6 +133,6 @@ export async function sendNotification(triggerDate: {hours: number, minutes: num
             channelId: channelId, // <- for Android 8.0+, see definition above
         },
     });
-
+    console.log("Уведомление с парметрами:",triggerDate, screenData, difficulty, melody, exampleCount, notificationId)
     console.log(`Будильник установлен на ${triggerDate.hours}:${triggerDate.minutes}:${triggerDate.seconds}`);
 }

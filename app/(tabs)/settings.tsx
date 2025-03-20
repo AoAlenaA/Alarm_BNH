@@ -2,14 +2,20 @@ import { Text, View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { supabase } from '../lib/supabase';
+import * as Notifications from 'expo-notifications';
 
 export default function Settings() {
+  const handleDeleteAllNotifications = async () => {
+    await cancelAllNotifications();}
   const performLogout = async () => {
+    handleDeleteAllNotifications
     try {
+      
       // Выход из Supabase
       await supabase.auth.signOut();
       // Удаляем токен
       await AsyncStorage.removeItem('userToken');
+      
       
       Alert.alert('Успех', 'Вы успешно вышли из аккаунта', [
         {
@@ -21,6 +27,14 @@ export default function Settings() {
       Alert.alert('Ошибка', 'Не удалось выйти из аккаунта');
     }
   };
+  async function cancelAllNotifications() {
+    try {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      console.log('Все уведомления успешно удалены.');
+    } catch (error) {
+      console.error('Ошибка при удалении уведомлений:', error);
+    }
+  }
 
   const handleLogout = () => {
     Alert.alert(
