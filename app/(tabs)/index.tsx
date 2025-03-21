@@ -130,6 +130,16 @@ export default function Index() {
     setSelectedAlarmId(alarmId);
     setModalVisible(true);
   };
+  const setMelody = (musicId: string) =>{
+    const m = [
+      'Мягкое пробуждение', 'Закат на пляже', 'Романтическая рождественская мелодия', 'Утренняя медитация', "Birds melebom", "Пение птиц ", 
+      "Chicktn-la-la-la", "Звуки обезьян", "Меня собирале в Китае…", "Открой глазки", "Просыпайся мой хозяин", "Я веселый таракан",
+      "Бригада", "Вступление в Гарри Поттере", "Last Christmas", "От улыбок станет…", "Рингтон iphone", "Мобильник-2", "Рингтон Nokia", "Мелодия старого телефона"
+  ];
+    const musicIndex = parseInt(musicId as string, 10) - 1;
+    return(m[musicIndex]);
+
+  };
 
   const deleteAlarm = async () => {
     console.log('Удаляю будильник')
@@ -175,7 +185,16 @@ export default function Index() {
             <Pressable 
               key={alarm.Alarm_id} 
               style={styles.alarmCard}
-              onPress={() => router.push({pathname:"/alarm_creator"})}
+              onPress={() => router.push({pathname:"/alarm_creator", params:{
+                level:alarm.Level_id, 
+                totalExamples:alarm.Count,
+                selectedScreen:alarm.Task_task,
+                melody: setMelody(alarm.Ring_id),
+                melodyPath: alarm.Ring_id,
+                ischange: 'true',
+                name: alarm.Alarm_name,
+                alarmId: alarm.Alarm_id
+            }})}
               onLongPress={() => handleLongPress(alarm.Alarm_id)}
             >
               <View style={styles.alarmInfo}>

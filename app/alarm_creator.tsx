@@ -10,12 +10,13 @@ import { Link } from "expo-router";
 import { useRouter, useLocalSearchParams } from 'expo-router'; // Import useRouter for navigation
 import { supabase } from "./lib/supabase";
 import { getPersonId } from './context/userContext';
+import * as Notifications from 'expo-notifications';
 
 
 export default function App() {
     
     const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
-    const { level, totalExamples, selectedScreen, melody, melodyPath } = useLocalSearchParams();
+    const { level = '0', totalExamples, selectedScreen, melody, melodyPath, ischange, name, alarmId} = useLocalSearchParams();
     const router = useRouter(); // Initialize router for navigation
     const [alarmName, setAlarmName] = useState(""); // Состояние для хранения названия будильника
 
@@ -43,204 +44,259 @@ export default function App() {
             Alert.alert("Ошибка", "Пожалуйста, выберите звук будильника.");
             return;
         }
-
-        const melodyPathTrue = melodyPath.toString()
+    
+        const melodyPathTrue = melodyPath.toString();
         router.push('/(tabs)');
-
-        
-        
-        const selectedScreenString = Array.isArray(selectedScreen) 
-        ? selectedScreen.join("") // Объединяем массив в строку без разделителей
-        : selectedScreen; // Если это уже строка, оставляем как есть
     
-    // Убираем запятую в конце, если она есть
-    const finaltask = selectedScreenString.replace(/ $/, "");
+        const selectedScreenString = Array.isArray(selectedScreen)
+            ? selectedScreen.join("") // Объединяем массив в строку без разделителей
+            : selectedScreen; // Если это уже строка, оставляем как есть
     
-   
+        // Убираем запятую в конце, если она есть
+        const finaltask = selectedScreenString.replace(/ $/, "");
     
-    const getTaskId = async (selectedScreen: string) => {
-        console.log(selectedScreen);
-        const { data, error } = await supabase
-            .from('Task')
-            .select('Task_id')
-            .eq('Task_task', selectedScreen)
-            .single();
+        const getTaskId = async (selectedScreen: string) => {
+            console.log(selectedScreen);
+            const { data, error } = await supabase
+                .from('Task')
+                .select('Task_id')
+                .eq('Task_task', selectedScreen)
+                .single();
     
-        if (error) {
-            console.error('Error fetching Task_id:', error);
-            return null;
-        }
-        
-        return data?.Task_id || null;
-    };
-    
-    
-
-
-    const task_id_new = await getTaskId(finaltask);
-    console.log("Task_id:", task_id_new);
-
-    if (task_id_new!=4){
-        
-
-
-         
-        const toNumeric = (value: string | string[]) => {
-            const numericValue = parseInt(
-                Array.isArray(value) ? value[0] : value,
-                10
-            );
-            if (isNaN(numericValue)) {
-                console.error("Ошибка: значение не является числом");
-                return null; // Возвращаем null, если преобразование не удалось
+            if (error) {
+                console.error('Error fetching Task_id:', error);
+                return null;
             }
-            return numericValue;
-        };
-
-        const score = toNumeric(totalExamples);
-       
-        const finalAlarmName = getFinalAlarmName();
-        const id = await getPersonId(); // Получаем personId
-         // Функция для форматирования времени
-        const formatTime = (time: { hours: number; minutes: number; seconds: number }): string => {
-        const pad = (num: number) => (num < 10 ? `0${num}` : num);
-        return `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`;
-        };
-        const selectedMelody = melodyPathTrue.match(/\d+/); // Находит первое число в строке
-        if(selectedMelody){
-        const selectedMelodyNumber = parseInt(selectedMelody[0], 10); // Преобразуем строку в число
     
-        const level_id_new = 0;
-        const newtime = formatTime(time);
-        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new , score, id);
-        const { data, error } = await supabase
-        .from('Alarm')
-        .insert([
-            {
-                Ring_id: selectedMelodyNumber,
-                Alarm_name: finalAlarmName,
-                Alarm_time:newtime,
-                Task_id: task_id_new,
-                Level_id: level_id_new,
-                Count: score,
-                Activity: true,
-                Person_id: id
-            },
-        ]);
-
-
-    if (error) {
-        console.error('Error saving alarm:', error);
-        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
-        Alert.alert("Ошибка", "Не удалось сохранить будильник.");
-    } else {
-        console.log('Alarm saved successfully:', data);
-        Alert.alert("Успех", "Будильник успешно сохранен.");
-        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
-        router.replace('/(tabs)');
-    }
-
-}
-    
-
-
-    }
-    else {
-        // Преобразуем level в строку
-        const selectedLevelString = Array.isArray(level) 
-        ? level.join("") // Объединяем массив в строку без разделителей
-        : level; // Если это уже строка, оставляем как есть
-        console.log("ncjncjndcdecnlkencfeklfc", selectedLevelString);
-        // Убираем пробел в конце, если он есть
-        const finallevel = selectedLevelString.replace(/ $/, "");
-
-
-         console.log("tttttttttttttttttttttttttttttttt");
-         // Функция для получения Level_id
-        const getLevelId = async (level: string) => {
-        console.log(level);
-         const { data, error } = await supabase
-        .from('Level')
-        .select('Level_id')
-        .eq('Level_level', level)
-        .single();
-    
-        if (error) {
-        console.error('Error fetching Level_id:', error);
-        return null;
-        }
-        return data?.Level_id || null;
+            return data?.Task_id || null;
         };
     
+        const task_id_new = await getTaskId(finaltask);
+        console.log("Task_id:", task_id_new);
     
+        if (task_id_new != 4) {
+            const toNumeric = (value: string | string[]) => {
+                const numericValue = parseInt(
+                    Array.isArray(value) ? value[0] : value,
+                    10
+                );
+                if (isNaN(numericValue)) {
+                    console.error("Ошибка: значение не является числом");
+                    return null; // Возвращаем null, если преобразование не удалось
+                }
+                return numericValue;
+            };
     
-
-
-
-        const toNumeric = (value: string | string[]) => {
-            const numericValue = parseInt(
-                Array.isArray(value) ? value[0] : value,
-                10
-            );
-            if (isNaN(numericValue)) {
-                console.error("Ошибка: значение не является числом");
-                return null; // Возвращаем null, если преобразование не удалось
+            const score = toNumeric(totalExamples);
+            const finalAlarmName = getFinalAlarmName();
+            const id = await getPersonId(); // Получаем personId
+            // Функция для форматирования времени
+            const formatTime = (time: { hours: number; minutes: number; seconds: number }): string => {
+                const pad = (num: number) => (num < 10 ? `0${num}` : num);
+                return `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`;
+            };
+            const selectedMelody = melodyPathTrue.match(/\d+/); // Находит первое число в строке
+            if (selectedMelody) {
+                const selectedMelodyNumber = parseInt(selectedMelody[0], 10); // Преобразуем строку в число
+    
+                const level_id_new = 0;
+                const newtime = formatTime(time);
+                console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
+    
+                if (ischange === 'true') {
+                    console.log('id удляемого будильника', alarmId)
+                    const { error: deleteError } = await supabase
+                        .from('Alarm')
+                        .delete()
+                        .eq('Alarm_id', alarmId);
+    
+                    if (deleteError) {
+                        console.error('Error deleting alarm:', deleteError);
+                        Alert.alert("Ошибка", "Не удалось удалить старый будильник.");
+                        return;
+                    }
+    
+                    // Удаляем старое уведомление
+                    await Notifications.cancelScheduledNotificationAsync(alarmId.toString());
+    
+                    // Создаем новый будильник
+                    const { data, error } = await supabase
+                        .from('Alarm')
+                        .insert([
+                            {
+                                Ring_id: selectedMelodyNumber,
+                                Alarm_name: finalAlarmName,
+                                Alarm_time: newtime,
+                                Task_id: task_id_new,
+                                Level_id: level_id_new,
+                                Count: score,
+                                Activity: true,
+                                Person_id: id
+                            },
+                        ]);
+    
+                    if (error) {
+                        console.error('Error saving alarm:', error);
+                        Alert.alert("Ошибка", "Не удалось сохранить новый будильник.");
+                    } else {
+                        console.log('Alarm saved successfully:', data);
+                        Alert.alert("Успех", "Будильник успешно обновлен.");
+                        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
+                        router.replace('/(tabs)');
+                    }
+                } else {
+                    // Создаем новый будильник
+                    const { data, error } = await supabase
+                        .from('Alarm')
+                        .insert([
+                            {
+                                Ring_id: selectedMelodyNumber,
+                                Alarm_name: finalAlarmName,
+                                Alarm_time: newtime,
+                                Task_id: task_id_new,
+                                Level_id: level_id_new,
+                                Count: score,
+                                Activity: true,
+                                Person_id: id
+                            },
+                        ]);
+    
+                    if (error) {
+                        console.error('Error saving alarm:', error);
+                        Alert.alert("Ошибка", "Не удалось сохранить будильник.");
+                    } else {
+                        console.log('Alarm saved successfully:', data);
+                        Alert.alert("Успех", "Будильник успешно сохранен.");
+                        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
+                        router.replace('/(tabs)');
+                    }
+                }
             }
-            return numericValue;
-        };
-
-        const score = toNumeric(totalExamples);
-       
-        const finalAlarmName = getFinalAlarmName();
-        const id = await getPersonId(); // Получаем personId
-         // Функция для форматирования времени
-        const formatTime = (time: { hours: number; minutes: number; seconds: number }): string => {
-        const pad = (num: number) => (num < 10 ? `0${num}` : num);
-        return `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`;
-        };
-        const selectedMelody = melodyPathTrue.match(/\d+/); // Находит первое число в строке
-        if(selectedMelody){
-        const selectedMelodyNumber = parseInt(selectedMelody[0], 10); // Преобразуем строку в число
+        } else {
+            // Преобразуем level в строку
+            const selectedLevelString = Array.isArray(level)
+                ? level.join("") // Объединяем массив в строку без разделителей
+                : level; // Если это уже строка, оставляем как есть
+            console.log("ncjncjndcdecnlkencfeklfc", selectedLevelString);
+            // Убираем пробел в конце, если он есть
+            const finallevel = selectedLevelString.replace(/ $/, "");
     
-        const level_id_new = await getLevelId(finallevel);
-        console.log("Level_id:", level_id_new);
-        const newtime = formatTime(time);
-        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new , score, id);
-        const { data, error } = await supabase
-        .from('Alarm')
-        .insert([
-            {
-                Ring_id: selectedMelodyNumber,
-                Alarm_name: finalAlarmName,
-                Alarm_time:newtime,
-                Task_id: task_id_new,
-                Level_id: level_id_new,
-                Count: score,
-                Activity: true,
-                Person_id: id
-            },
-        ]);
-
-
-    if (error) {
-        console.error('Error saving alarm:', error);
-        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
-        Alert.alert("Ошибка", "Не удалось сохранить будильник.");
-    } else {
-        console.log('Alarm saved successfully:', data);
-        Alert.alert("Успех", "Будильник успешно сохранен.");
-        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
-        router.replace('/(tabs)');
-    }
-
-    }
+            console.log("tttttttttttttttttttttttttttttttt");
+            // Функция для получения Level_id
+            const getLevelId = async (level: string) => {
+                console.log(level);
+                const { data, error } = await supabase
+                    .from('Level')
+                    .select('Level_id')
+                    .eq('Level_level', level)
+                    .single();
     
-
-
-    }
+                if (error) {
+                    console.error('Error fetching Level_id:', error);
+                    return null;
+                }
+                return data?.Level_id || null;
+            };
     
-        
-
+            const toNumeric = (value: string | string[]) => {
+                const numericValue = parseInt(
+                    Array.isArray(value) ? value[0] : value,
+                    10
+                );
+                if (isNaN(numericValue)) {
+                    console.error("Ошибка: значение не является числом");
+                    return null; // Возвращаем null, если преобразование не удалось
+                }
+                return numericValue;
+            };
+    
+            const score = toNumeric(totalExamples);
+            const finalAlarmName = getFinalAlarmName();
+            const id = await getPersonId(); // Получаем personId
+            // Функция для форматирования времени
+            const formatTime = (time: { hours: number; minutes: number; seconds: number }): string => {
+                const pad = (num: number) => (num < 10 ? `0${num}` : num);
+                return `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`;
+            };
+            const selectedMelody = melodyPathTrue.match(/\d+/); // Находит первое число в строке
+            if (selectedMelody) {
+                const selectedMelodyNumber = parseInt(selectedMelody[0], 10); // Преобразуем строку в число
+    
+                const level_id_new = await getLevelId(finallevel);
+                console.log("Level_id:", level_id_new);
+                const newtime = formatTime(time);
+                console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
+    
+                if (ischange === 'true') {
+                    // Удаляем старый будильник
+                    const { error: deleteError } = await supabase
+                        .from('Alarm')
+                        .delete()
+                        .eq('Alarm_id', alarmId);
+    
+                    if (deleteError) {
+                        console.error('Error deleting alarm:', deleteError);
+                        Alert.alert("Ошибка", "Не удалось удалить старый будильник.");
+                        return;
+                    }
+    
+                    // Удаляем старое уведомление
+                    await Notifications.cancelScheduledNotificationAsync(alarmId.toString());
+    
+                    // Создаем новый будильник
+                    const { data, error } = await supabase
+                        .from('Alarm')
+                        .insert([
+                            {
+                                Ring_id: selectedMelodyNumber,
+                                Alarm_name: finalAlarmName,
+                                Alarm_time: newtime,
+                                Task_id: task_id_new,
+                                Level_id: level_id_new,
+                                Count: score,
+                                Activity: true,
+                                Person_id: id
+                            },
+                        ]);
+    
+                    if (error) {
+                        console.error('Error saving alarm:', error);
+                        Alert.alert("Ошибка", "Не удалось сохранить новый будильник.");
+                    } else {
+                        console.log('Alarm saved successfully:', data);
+                        Alert.alert("Успех", "Будильник успешно обновлен.");
+                        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
+                        router.replace('/(tabs)');
+                    }
+                } else {
+                    // Создаем новый будильник
+                    const { data, error } = await supabase
+                        .from('Alarm')
+                        .insert([
+                            {
+                                Ring_id: selectedMelodyNumber,
+                                Alarm_name: finalAlarmName,
+                                Alarm_time: newtime,
+                                Task_id: task_id_new,
+                                Level_id: level_id_new,
+                                Count: score,
+                                Activity: true,
+                                Person_id: id
+                            },
+                        ]);
+    
+                    if (error) {
+                        console.error('Error saving alarm:', error);
+                        Alert.alert("Ошибка", "Не удалось сохранить будильник.");
+                    } else {
+                        console.log('Alarm saved successfully:', data);
+                        Alert.alert("Успех", "Будильник успешно сохранен.");
+                        console.log("Все для бд:  ", selectedMelody, finalAlarmName, newtime, task_id_new, level_id_new, score, id);
+                        router.replace('/(tabs)');
+                    }
+                }
+            }
+        }
     };
     
 
@@ -304,7 +360,7 @@ export default function App() {
             <View style={styles.containerOptions}>
                 <TextInput
                      style={styles.input}
-                     placeholder="Название будильника"
+                     placeholder={name ? name.toString() : "Название будильника"}
                      value={alarmName} // Привязываем значение к состоянию
                      onChangeText={handleNameChange} // Обрабатываем изменение текста
                      maxLength={20} // Ограничиваем длину ввода
