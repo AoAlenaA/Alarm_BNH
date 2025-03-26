@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { supabase } from '../lib/supabase';
@@ -6,16 +6,16 @@ import * as Notifications from 'expo-notifications';
 
 export default function Settings() {
   const handleDeleteAllNotifications = async () => {
-    await cancelAllNotifications();}
+    await cancelAllNotifications();
+  };
+
   const performLogout = async () => {
-    handleDeleteAllNotifications
+    handleDeleteAllNotifications();
     try {
-      
       // Выход из Supabase
       await supabase.auth.signOut();
       // Удаляем токен
       await AsyncStorage.removeItem('userToken');
-      
       
       Alert.alert('Успех', 'Вы успешно вышли из аккаунта', [
         {
@@ -27,6 +27,7 @@ export default function Settings() {
       Alert.alert('Ошибка', 'Не удалось выйти из аккаунта');
     }
   };
+
   async function cancelAllNotifications() {
     try {
       await Notifications.cancelAllScheduledNotificationsAsync();
@@ -55,12 +56,32 @@ export default function Settings() {
     );
   };
 
+  const showAppInfo = () => {
+    Alert.alert(
+      'О приложении',
+      'Разработчики: Анучина А.О., Белослудцева К.Д. и Харитонова В.В.\nВерсия приложения: 1\nРазработано в 2025 году',
+      [
+        {
+          text: 'OK',
+          style: 'default'
+        }
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Настройки</Text>
       
       <View style={styles.settingsContainer}>
-        {/* Здесь можно добавить другие настройки */}
+        <Text style={styles.welcomeText}>Добро пожаловать в приложение "Пока вставать!"</Text>
+        
+        <TouchableOpacity 
+          style={styles.infoButton}
+          onPress={showAppInfo}
+        >
+          <Text style={styles.infoButtonText}>О приложении</Text>
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity 
@@ -84,11 +105,36 @@ const styles = StyleSheet.create({
     color: '#1A293C',
     fontFamily: "Inter",
     fontWeight: "bold",
+    paddingTop: Platform.OS === 'ios' ? 50 : 20, // Добавляем отступ для iPhone
     marginBottom: 20,
     textAlign: 'center'
   },
   settingsContainer: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  welcomeText: {
+    fontSize: 22,
+    color: '#1A293C',
+    fontFamily: "Inter",
+    fontWeight: "bold",
+    marginBottom: 30,
+    textAlign: 'center',
+    lineHeight: 30
+  },
+  infoButton: {
+    backgroundColor: '#6B9080',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    width: '60%',
+    marginBottom: 20
+  },
+  infoButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   logoutButton: {
     backgroundColor: '#6B9080',

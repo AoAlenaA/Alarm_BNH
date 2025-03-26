@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         backgroundColor: "#6B9080",
         alignItems: "center",
-        marginRight: 10
+        marginRight: 20
     },
     buttonTextCancel: {
         color: '#fff',
