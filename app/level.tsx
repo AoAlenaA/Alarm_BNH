@@ -174,7 +174,7 @@ function LevelScreen() {
           <Text style={styles.bottomButtonText}>Отмена</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.bottomButton, styles.saveButton]} onPress={handleSavePress}>
-          <Text style={styles.bottomButtonText}>Далее</Text>
+          <Text style={styles.bottomButtonText}>Сохранить</Text>
         </TouchableOpacity>
       </View>
     </View>

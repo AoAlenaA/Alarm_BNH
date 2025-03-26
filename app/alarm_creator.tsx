@@ -415,6 +415,8 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         backgroundColor: '#CCE3DE',
+        padding: 15,
+        borderRadius: 20,
     },
     button: {
         margin: 20,
@@ -426,7 +428,7 @@ const styles = StyleSheet.create({
         marginRight: 10
     },
     buttonTextCancel: {
-        color: '#1A293C',
+        color: '#fff',
         fontFamily: "Inter",
         fontWeight: "bold",
         fontSize: 18,

@@ -11,7 +11,7 @@ const StepsSelectionScreen = () => {
 
   function handleSavePress() {
     const count = parseInt(stepCount, 10);
-    if (count > 0 && count <= 10000) {
+    if (count >= 10 && count <= 50) {
       router.push({
         pathname: '/alarm_creator',
         params: { selectedScreen: selectedScreen, totalExamples: stepCount,
@@ -20,7 +20,7 @@ const StepsSelectionScreen = () => {
         },
       });
     } else {
-      Alert.alert('Ошибка', 'Введите число от 1 до 100.');
+      Alert.alert('Ошибка', 'Введите число от 10 до 50.');
     }
   }
 
@@ -42,7 +42,7 @@ const StepsSelectionScreen = () => {
       <View style={styles.content}>
         <TextInput
           style={styles.input}
-          placeholder="Количество шагов (1-100)"
+          placeholder="Количество шагов (10-50)"
           keyboardType="numeric"
           value={stepCount}
           onChangeText={setStepCount}
@@ -64,66 +64,65 @@ const StepsSelectionScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#CCE3DE',
-  },
-  header: {
-    backgroundColor: '#6B9080',
-    padding: 20,
-    paddingTop: Platform.OS === 'ios' ? 50 : 20,
-    alignItems: 'center',
-  },
-  headerText: {
-    fontSize: 24,
-    color: '#fff',
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  input: {
-    width: '80%',
-    padding: 15,
-    borderWidth: 2,
-    borderColor: '#6B9080',
-    borderRadius: 10,
-    fontSize: 18,
-    fontFamily: 'Inter',
-    color: '#1A293C',
-    marginBottom: 20,
-  },
-  bottomButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 15,
-    backgroundColor: '#6B9080',
-    borderRadius: 10,
-    marginBottom: 20, // Отступ снизу для клавиатуры
-  },
-  bottomButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-    minWidth: 120,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#A4C3B2',
-  },
-  saveButton: {
-    backgroundColor: '#A4C3B2',
-  },
-  bottomButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Inter',
-    color: '#fff',
-  },
-});
+    container: {
+      flex: 1,
+      backgroundColor: '#CCE3DE',
+    },
+    header: {
+      backgroundColor: '#6B9080',
+      padding: 20,
+      paddingTop: Platform.OS === 'ios' ? 50 : 20,
+      alignItems: 'center',
+    },
+    headerText: {
+      fontSize: 24,
+      color: '#fff',
+      fontFamily: 'Inter',
+      fontWeight: 'bold',
+    },
+    content: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 20,
+      backgroundColor: '#CCE3DE',
+    },
+    input: {
+      width: '100%',
+      padding: 15,
+      borderWidth: 2,
+      borderColor: '#6B9080',
+      borderRadius: 20,
+      fontSize: 18,
+      fontFamily: 'Inter',
+      color: '#1A293C',
+      marginBottom: 20,
+    },
+    bottomButtonsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      padding: 15,
+      backgroundColor: '#CCE3DE',
+    },
+    bottomButton: {
+      paddingVertical: 12,
+      paddingHorizontal: 30,
+      borderRadius: 20,
+      minWidth: 120,
+      alignItems: 'center',
+    },
+    cancelButton: {
+      backgroundColor: '#6B9080',
+    },
+    saveButton: {
+      backgroundColor: '#6B9080',
+    },
+    bottomButtonText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      fontFamily: 'Inter',
+      color: '#fff',
+    },
+  });
 
 export default StepsSelectionScreen;

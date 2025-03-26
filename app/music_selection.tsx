@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, Platform } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, Platform, StatusBar, ScrollView } from "react-native";
 import { Audio } from "expo-av";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "./lib/supabase";
-
-
+import { Ionicons } from '@expo/vector-icons';
 
 // Определите тип для объекта melodiesAudio
 type MelodiesAudio = {
-    [key: number]: any; // Ключи могут быть числами
+    [key: number]: any;
 };
 
 // Создайте объект для хранения аудиофайлов
@@ -33,7 +32,6 @@ const melodiesAudio: MelodiesAudio = {
     18: require('../assets/sounds/sound_18.mp3'),
     19: require('../assets/sounds/sound_19.mp3'),
     20: require('../assets/sounds/sound_20.mp3'),
-    
 };
 
 type Melody = {
@@ -67,11 +65,11 @@ export default function MelodySelection() {
 
     const playSound = async (melodyId: number) => {
         if (sound) {
-            await sound.unloadAsync(); // Остановить и выгрузить предыдущий звук
+            await sound.unloadAsync();
         }
 
         try {
-            const audioSource = melodiesAudio[melodyId]; // Получаем аудиофайл по ID
+            const audioSource = melodiesAudio[melodyId];
             if (!audioSource) {
                 console.error('Аудиофайл не найден');
                 return;
@@ -79,7 +77,7 @@ export default function MelodySelection() {
 
             const { sound: newSound } = await Audio.Sound.createAsync(audioSource);
             setSound(newSound);
-            await newSound.playAsync(); // Воспроизвести звук
+            await newSound.playAsync();
         } catch (error) {
             console.error('Ошибка загрузки или воспроизведения звука:', error);
         }
@@ -88,17 +86,16 @@ export default function MelodySelection() {
     useEffect(() => {
         return () => {
             if (sound) {
-                sound.unloadAsync(); // Выгрузить звук при размонтировании компонента
+                sound.unloadAsync();
             }
         };
     }, [sound]);
 
     const handleSave = async () => {
         if (selectedMelody) {
-            // Остановить воспроизведение звука, если он играет
             if (sound) {
-                await sound.stopAsync(); // Остановить воспроизведение
-                await sound.unloadAsync(); // Выгрузить звук
+                await sound.stopAsync();
+                await sound.unloadAsync();
             }
     
             const selectedMelodyText = melodies.find(m => m.Ring_id === selectedMelody)?.Ring;
@@ -112,7 +109,6 @@ export default function MelodySelection() {
                     totalExamples: totalExamples,
                 },
             });
-            console.log(`sound_${selectedMelody}.mp3`)
         } else {
             alert("Пожалуйста, выберите мелодию");
         }
@@ -120,42 +116,54 @@ export default function MelodySelection() {
 
     const handleCancel = async () => {
         if (sound) {
-            await sound.stopAsync(); // Остановить воспроизведение
-            await sound.unloadAsync(); // Выгрузить звук
+            await sound.stopAsync();
+            await sound.unloadAsync();
         }
         router.back();
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.headerText}>Выберите мелодию</Text>
+            <StatusBar barStyle="dark-content" />
+            <View style={styles.header}>
+                <Text style={styles.headerText}>Выберите мелодию</Text>
+            </View>
 
-            <FlatList
-                data={melodies}
-                keyExtractor={(item) => item.Ring_id.toString()}
-                contentContainerStyle={styles.flatListContent}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={[
-                            styles.melodyItem,
-                            selectedMelody === item.Ring_id && styles.selectedMelodyItem,
-                        ]}
-                        onPress={() => {
-                            setSelectedMelody(item.Ring_id);
-                            playSound(item.Ring_id);
-                        }}
-                    >
-                        <Text style={styles.melodyText}>{item.Ring}</Text>
-                    </TouchableOpacity>
-                )}
-            />
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <View style={styles.buttonContainer}>
+                    <FlatList
+                        data={melodies}
+                        keyExtractor={(item) => item.Ring_id.toString()}
+                        scrollEnabled={false}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                style={[
+                                    styles.button,
+                                    selectedMelody === item.Ring_id && styles.buttonSelected,
+                                ]}
+                                onPress={() => {
+                                    setSelectedMelody(item.Ring_id);
+                                    playSound(item.Ring_id);
+                                }}
+                            >
+                                <Text style={[
+                                    styles.buttonText,
+                                    selectedMelody === item.Ring_id && styles.buttonTextSelected
+                                ]}>
+                                    {item.Ring}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    />
+                </View>
+            </ScrollView>
 
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-                    <Text style={styles.buttonText}>Отмена</Text>
+            <View style={styles.bottomButtonsContainer}>
+                <TouchableOpacity style={[styles.bottomButton, styles.cancelButton]} onPress={handleCancel}>
+                    <Text style={styles.bottomButtonText}>Отмена</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                    <Text style={styles.buttonText}>Сохранить</Text>
+                <TouchableOpacity style={[styles.bottomButton, styles.nextButton]} onPress={handleSave}>
+                    <Text style={styles.bottomButtonText}>Сохранить</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -165,66 +173,75 @@ export default function MelodySelection() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
         backgroundColor: '#CCE3DE',
     },
+    header: {
+        backgroundColor: '#6B9080',
+        padding: 20,
+        paddingTop: Platform.OS === 'ios' ? 50 : 20,
+        alignItems: 'center',
+    },
     headerText: {
-        fontSize: 22,
-        fontWeight: 'bold',
+        fontSize: 24,
         color: '#fff',
+        fontFamily: 'Inter',
+        fontWeight: 'bold',
+    },
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    buttonContainer: {
+        width: '100%',
+        alignItems: 'center',
+    },
+    button: {
         backgroundColor: '#6B9080',
         paddingVertical: 15,
         paddingHorizontal: 20,
-        borderRadius: 10,
-        textAlign: 'center',
-        marginTop: Platform.OS === 'ios' ? 50 : 20,
-        marginBottom: 20,
+        borderRadius: 20,
+        marginBottom: 15,
+        width: '100%',
     },
-    flatListContent: {
-        flexGrow: 1,
-        justifyContent: 'center',
-    },
-    melodyItem: {
-        padding: 20,
-        marginVertical: 10,
-        borderWidth: 1,
-        borderColor: '#6B9080',
-        borderRadius: 10,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-    },
-    selectedMelodyItem: {
-        backgroundColor: '#A6CEC5',
-    },
-    melodyText: {
-        fontSize: 18,
-        color: '#1A293C',
-        fontWeight: 'bold',
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 20,
-    },
-    cancelButton: {
-        flex: 1,
-        padding: 15,
-        backgroundColor: '#6B9080',
-        borderRadius: 10,
-        marginRight: 10,
-        alignItems: 'center',
-    },
-    saveButton: {
-        flex: 1,
-        padding: 15,
-        backgroundColor: '#6B9080',
-        borderRadius: 10,
-        marginLeft: 10,
-        alignItems: 'center',
+    buttonSelected: {
+        backgroundColor: '#A4C3B2',
     },
     buttonText: {
         color: '#fff',
         fontSize: 18,
+        fontFamily: 'Inter',
         fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    buttonTextSelected: {
+        color: '#000',
+    },
+    bottomButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        padding: 15,
+        backgroundColor: '#CCE3DE',
+        borderRadius: 20,
+    },
+    bottomButton: {
+        paddingVertical: 12,
+        paddingHorizontal: 30,
+        borderRadius: 20,
+        minWidth: 120,
+        alignItems: 'center',
+    },
+    cancelButton: {
+        backgroundColor: '#6B9080',
+    },
+    nextButton: {
+        backgroundColor: '#6B9080',
+    },
+    bottomButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        fontFamily: 'Inter',
     },
 });
