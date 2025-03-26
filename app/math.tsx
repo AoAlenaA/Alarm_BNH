@@ -74,6 +74,24 @@ const MathGameScreen = () => {
       example = `${num1} * ${num2}`;
       answer = num1 * num2;
     }
+    else if (level === '3') {
+      const num1 = Math.floor(Math.random() * 90) + 10; // Двузначное число
+      const num2 = Math.floor(Math.random() * 9) + 1; // Однозначное число
+      example = `${num1} + ${num2}`;
+      answer = num1 + num2;
+    } else if (level === '2') {
+      const num1 = Math.floor(Math.random() * 90) + 10; // Двузначное число
+      const num2 = Math.floor(Math.random() * 90) + 10; // Двузначное число
+      const num3 = Math.floor(Math.random() * 90) + 10; // Двузначное число
+      example = `${num1} + ${num2} + ${num3}`;
+      answer = num1 + num2 + num3;
+    } else if (level === '3') {
+      const num1 = Math.floor(Math.random() * 90) + 10; // Двузначное число
+      const num2 = Math.floor(Math.random() * 9) + 1; // Однозначное число
+      example = `${num1} * ${num2}`;
+      answer = num1 * num2;
+    }
+
 
     console.log("Уровень реальный: ", level, " ", totalExamples)
     setCurrentExample(example);
