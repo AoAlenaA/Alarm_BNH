@@ -409,12 +409,12 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: "row",
+        justifyContent: "space-between",
         position: "absolute",
         bottom: 0,
         left: 0,
         right: 0,
         backgroundColor: '#CCE3DE',
-        justifyContent: 'space-around',
         padding: 15,
         borderRadius: 20,
     },
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         backgroundColor: "#6B9080",
         alignItems: "center",
-        marginRight: 20
+        marginRight: 10
     },
     buttonTextCancel: {
         color: '#fff',
