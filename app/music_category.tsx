@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, Platform } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, Platform, StatusBar, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "./lib/supabase";
+import { Ionicons } from '@expo/vector-icons';
 
 // Определяем тип для категории
 type Category = {
@@ -32,10 +33,15 @@ export default function CategorySelection() {
 
     const handleNext = () => {
         if (selectedCategory) {
-            router.push({ pathname: "/music_selection", params: { categoryId: selectedCategory, 
-                selectedScreen: selectedScreen, 
-                level: level,
-                totalExamples: totalExamples, } });
+            router.push({ 
+                pathname: "/music_selection", 
+                params: { 
+                    categoryId: selectedCategory, 
+                    selectedScreen: selectedScreen, 
+                    level: level,
+                    totalExamples: totalExamples, 
+                } 
+            });
         } else {
             alert("Пожалуйста, выберите категорию");
         }
@@ -47,34 +53,43 @@ export default function CategorySelection() {
 
     return (
         <View style={styles.container}>
-            {/* Заголовок "Выберите категорию" */}
-            <Text style={styles.headerText}>Выберите категорию</Text>
+            <StatusBar barStyle="dark-content" />
+            <View style={styles.header}>
+                <Text style={styles.headerText}>Выберите категорию</Text>
+            </View>
 
-            {/* Список категорий */}
-            <FlatList
-                data={categories}
-                keyExtractor={(item) => item.Ring_category_id.toString()}
-                contentContainerStyle={styles.flatListContent} // Центрируем категории
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={[
-                            styles.categoryItem,
-                            selectedCategory === item.Ring_category_id && styles.selectedCategoryItem,
-                        ]}
-                        onPress={() => setSelectedCategory(item.Ring_category_id)}
-                    >
-                        <Text style={styles.categoryText}>{item.Category}</Text>
-                    </TouchableOpacity>
-                )}
-            />
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <View style={styles.buttonContainer}>
+                    <FlatList
+                        data={categories}
+                        keyExtractor={(item) => item.Ring_category_id.toString()}
+                        scrollEnabled={false}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                style={[
+                                    styles.button,
+                                    selectedCategory === item.Ring_category_id && styles.buttonSelected,
+                                ]}
+                                onPress={() => setSelectedCategory(item.Ring_category_id)}
+                            >
+                                <Text style={[
+                                    styles.buttonText,
+                                    selectedCategory === item.Ring_category_id && styles.buttonTextSelected
+                                ]}>
+                                    {item.Category}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    />
+                </View>
+            </ScrollView>
 
-            {/* Кнопки "Отмена" и "Далее" */}
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-                    <Text style={styles.buttonText}>Отмена</Text>
+            <View style={styles.bottomButtonsContainer}>
+                <TouchableOpacity style={[styles.bottomButton, styles.cancelButton]} onPress={handleCancel}>
+                    <Text style={styles.bottomButtonText}>Отмена</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-                    <Text style={styles.buttonText}>Далее</Text>
+                <TouchableOpacity style={[styles.bottomButton, styles.nextButton]} onPress={handleNext}>
+                    <Text style={styles.bottomButtonText}>Далее</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -84,66 +99,75 @@ export default function CategorySelection() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
         backgroundColor: '#CCE3DE',
     },
-    headerText: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#fff', // Цвет как у кнопок
-        backgroundColor: '#6B9080', // Фон как у кнопок
-        paddingVertical: 15,
-        paddingHorizontal: 20,
-        borderRadius: 10,
-        textAlign: 'center',
-        marginTop: Platform.OS === 'ios' ? 50 : 20, // Больше отступ для iPhone
-        marginBottom: 20,
-    },
-    flatListContent: {
-        flexGrow: 1,
-        justifyContent: 'center', // Центрируем категории
-    },
-    categoryItem: {
+    header: {
+        backgroundColor: '#6B9080',
         padding: 20,
-        marginVertical: 10, // Промежутки между категориями
-        borderWidth: 1,
-        borderColor: '#6B9080',
-        borderRadius: 10,
-        backgroundColor: '#fff',
+        paddingTop: Platform.OS === 'ios' ? 50 : 20,
         alignItems: 'center',
     },
-    selectedCategoryItem: {
-        backgroundColor: '#A6CEC5', // Подсветка выбранной категории
-    },
-    categoryText: {
-        fontSize: 18,
-        color: '#1A293C', // Более яркий цвет текста
+    headerText: {
+        fontSize: 24,
+        color: '#fff',
+        fontFamily: 'Inter',
         fontWeight: 'bold',
+    },
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
     },
     buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 20,
-    },
-    cancelButton: {
-        flex: 1,
-        padding: 15,
-        backgroundColor: '#6B9080',
-        borderRadius: 10,
-        marginRight: 10,
+        width: '100%',
         alignItems: 'center',
     },
-    nextButton: {
-        flex: 1,
-        padding: 15,
+    button: {
         backgroundColor: '#6B9080',
-        borderRadius: 10,
-        marginLeft: 10,
-        alignItems: 'center',
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        marginBottom: 15,
+        width: '100%',
+    },
+    buttonSelected: {
+        backgroundColor: '#A4C3B2',
     },
     buttonText: {
         color: '#fff',
         fontSize: 18,
+        fontFamily: 'Inter',
         fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    buttonTextSelected: {
+        color: '#000',
+    },
+    bottomButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        padding: 15,
+        backgroundColor: '#CCE3DE',
+        borderRadius: 20,
+    },
+    bottomButton: {
+        paddingVertical: 12,
+        paddingHorizontal: 30,
+        borderRadius: 20,
+        minWidth: 120,
+        alignItems: 'center',
+    },
+    cancelButton: {
+        backgroundColor: '#6B9080',
+    },
+    nextButton: {
+        backgroundColor: '#6B9080',
+    },
+    bottomButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        fontFamily: 'Inter',
     },
 });

@@ -1,76 +1,67 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { KeyboardAvoidingView } from "react-native";
+import { ScrollView } from "react-native";
 
 const TextCountSelection = () => {
-  const [selectedCount, setSelectedCount] = useState<number | null>(null);
+  const [textCount, setTextCount] = useState<string>('');
   const router = useRouter();
-  const {selectedScreen } = useLocalSearchParams();
-  const {melody, melodyPath } = useLocalSearchParams();
+  const { selectedScreen } = useLocalSearchParams();
+  const { melody, melodyPath } = useLocalSearchParams();
 
-  function handleCountSelect(count: number) {
-    setSelectedCount(count);
+  function handleNextPress() {
+    const count = parseInt(textCount, 10);
+    if (count >= 1 && count <= 20) {
+      router.push({
+        pathname: '/alarm_creator',
+        params: { 
+          selectedScreen: selectedScreen, 
+          totalExamples: count, 
+          melody: melody,
+          melodyPath: melodyPath
+        },
+      });
+    } else {
+      Alert.alert('Ошибка', 'Введите число от 1 до 20.');
+    }
   }
 
   const handleCancelPress = () => {
     router.back();
   };
 
-  const handleNextPress = () => {
-    if (selectedCount === null) {
-      Alert.alert('Ошибка', 'Пожалуйста, выберите количество текстов');
-    } else {
-      router.push({
-        pathname: '/alarm_creator',
-        params: { selectedScreen: selectedScreen, totalExamples: selectedCount, 
-          melody:melody,
-          melodyPath: melodyPath
-         },
-      });
-    }
-  };
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1 }}
-        >
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Выберите количество текстов</Text>
-      </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={styles.header}>
+            <Text style={styles.headerText}>Выберите количество текстов</Text>
+          </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.buttonContainer}>
-          {Array.from({ length: 20 }, (_, i) => i + 1).map((count) => (
-            <TouchableOpacity
-              key={count}
-              style={[styles.button, selectedCount === count && styles.buttonSelected]}
-              onPress={() => handleCountSelect(count)}
-            >
-              <Text style={[styles.buttonText, selectedCount === count && styles.buttonTextSelected]}>{count}</Text>
+          <View style={styles.content}>
+            <TextInput
+              style={styles.input}
+              placeholder="Количество текстов (1-20)"
+              keyboardType="numeric"
+              value={textCount}
+              onChangeText={setTextCount}
+            />
+          </View>
+
+          <View style={styles.bottomButtonsContainer}>
+            <TouchableOpacity style={[styles.bottomButton, styles.cancelButton]} onPress={handleCancelPress}>
+              <Text style={styles.bottomButtonText}>Отмена</Text>
             </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
-
-      <View style={styles.bottomButtonsContainer}>
-        <TouchableOpacity style={[styles.bottomButton, styles.cancelButton]} onPress={handleCancelPress}>
-          <Text style={styles.bottomButtonText}>Отмена</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.bottomButton, styles.nextButton]} onPress={handleNextPress}>
-          <Text style={styles.bottomButtonText}>Далее</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-     </ScrollView>
-        </KeyboardAvoidingView>
+            <TouchableOpacity style={[styles.bottomButton, styles.nextButton]} onPress={handleNextPress}>
+              <Text style={styles.bottomButtonText}>Сохранить</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -92,43 +83,29 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
     fontWeight: 'bold',
   },
-  scrollContent: {
-    flexGrow: 1,
+  content: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#CCE3DE',
   },
-  buttonContainer: {
+  input: {
     width: '100%',
-    alignItems: 'center',
-  },
-  button: {
-    backgroundColor: '#6B9080',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    padding: 15,
+    borderWidth: 2,
+    borderColor: '#6B9080',
     borderRadius: 20,
-    marginBottom: 15,
-    width: '100%',
-    alignItems: 'center',
-  },
-  buttonSelected: {
-    backgroundColor: '#A4C3B2',
-  },
-  buttonText: {
-    color: '#fff',
     fontSize: 18,
     fontFamily: 'Inter',
-    fontWeight: 'bold',
-  },
-  buttonTextSelected: {
-    color: '#000',
+    color: '#1A293C',
+    marginBottom: 20,
   },
   bottomButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     padding: 15,
     backgroundColor: '#CCE3DE',
-    borderRadius: 20,
   },
   bottomButton: {
     paddingVertical: 12,
@@ -144,10 +121,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#6B9080',
   },
   bottomButtonText: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
     fontFamily: 'Inter',
+    color: '#fff',
   },
 });
 

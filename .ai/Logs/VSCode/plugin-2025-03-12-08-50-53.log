@@ -1,0 +1,12 @@
+[3/12/2025, 8:50:53 AM] info: Logging was started to file.
+[3/12/2025, 8:50:53 AM] info: Start application inspector initialization
+[3/12/2025, 8:50:53 AM] info: Hide developer mode UI
+[3/12/2025, 8:50:53 AM] info: Infrastructure Configurations: {"port":8000,"infrastructureAssemblyFolderPath":"C:\\Users\\bbelochkka\\AppData\\Local\\Application Inspector Analyzer","applicationResourcesFolderPath":"C:\\Users\\bbelochkka\\AppData\\Local\\Application Inspector Analyzer","scanTargetFolderPath":"c:\\Users\\bbelochkka\\Alarm_2_GIT\\Alarm_BNH","isDebugging":false,"logLevel":{"q8_1":"Error","r8_1":5,"type":5,"key":"Settings.LogLevel.Error.Text"},"logDir":"c:\\Users\\bbelochkka\\Alarm_2_GIT\\Alarm_BNH\\.ai\\Logs\\Infrastructure\\2025-03-12-08-50-53","tipsFoundNotificationThreshold":1000,"similarIssuesFoundNotificationThreshold":1000,"applicationLocalDataFolderPath":"c:\\Users\\bbelochkka\\Alarm_2_GIT\\Alarm_BNH\\.ai"}
+[3/12/2025, 8:50:53 AM] info: Start infrastructure initialization
+[3/12/2025, 8:50:53 AM] info: Infrastructure was started
+[3/12/2025, 8:50:58 AM] info: Initialize aie integration isn't initialized
+[3/12/2025, 8:50:58 AM] info: Infrastructure was initialized
+[3/12/2025, 8:50:58 AM] info: Infrastructure Installer was deleted
+[3/12/2025, 8:50:59 AM] info: Clean up logs files was started
+[3/12/2025, 8:50:59 AM] info: Clean up logs files was finished
+[3/12/2025, 8:51:03 AM] info: Project was created. Id: ec5450a9-cb9a-425c-a528-b012330950a2
